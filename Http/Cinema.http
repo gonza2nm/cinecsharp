@@ -1,0 +1,34 @@
+@cinema_url = http://localhost:5212/api/cinemas
+@cinema_id = 2
+
+# Get Cinemas
+GET {{cinema_url}} 
+Accept: application/json
+
+### Get Cinemas by id
+GET {{cinema_url}}/{{cinema_id}}
+Accept: application/json
+
+### Add cinema
+POST {{cinema_url}}
+Content-Type: application/json
+
+{
+  "Id": 3,
+  "Name": "Gonza's Cinema",
+  "Address": "Pte Peron 390, La Plata, BS AS"
+}
+
+### Update Cinema
+PUT {{cinema_url}}/{{cinema_id}}
+Content-Type: application/json
+
+{
+  "Id": 2,
+  "Name": "Updated Cinema",
+  "Address": "Pte Peron 390, La Plata, BS AS"
+}
+
+### Delete Cinema
+DELETE  {{cinema_url}}/{{cinema_id}}
+
