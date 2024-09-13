@@ -1,0 +1,10 @@
+namespace backend_cine.Models;
+
+public class Theater : BaseEntity
+{
+  public string TheaterName { get; set; }
+  public int Chairs { get; set; }
+  public List<Showtime> Showtimes { get; set; } = new List<Showtime>();
+  public long CinemaId { get; set; }
+  public Cinema Cinema { get; set; } = null!;
+}

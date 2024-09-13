@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend_cine.Dbcontext;
 
@@ -11,9 +12,11 @@ using backend_cine.Dbcontext;
 namespace backend_cine.Migrations
 {
     [DbContext(typeof(DbContextCinema))]
-    partial class DbContextCinemaModelSnapshot : ModelSnapshot
+    [Migration("20240913143636_TestCambiarNombreRelacionesMM")]
+    partial class TestCambiarNombreRelacionesMM
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,36 +25,6 @@ namespace backend_cine.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("CinemaMovie", b =>
-                {
-                    b.Property<long>("CinemasId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("MoviesId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("CinemasId", "MoviesId");
-
-                    b.HasIndex("MoviesId");
-
-                    b.ToTable("CinemaMovie", "gcinema");
-                });
-
-            modelBuilder.Entity("FormatMovie", b =>
-                {
-                    b.Property<long>("FormatsId")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("MoviesId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("FormatsId", "MoviesId");
-
-                    b.HasIndex("MoviesId");
-
-                    b.ToTable("FormatMovie", "gcinema");
-                });
 
             modelBuilder.Entity("GenreMovie", b =>
                 {
@@ -240,34 +213,34 @@ namespace backend_cine.Migrations
                     b.ToTable("user", "gcinema");
                 });
 
-            modelBuilder.Entity("CinemaMovie", b =>
+            modelBuilder.Entity("cinema_movies", b =>
                 {
-                    b.HasOne("backend_cine.Models.Cinema", null)
-                        .WithMany()
-                        .HasForeignKey("CinemasId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<long>("CinemasId")
+                        .HasColumnType("bigint");
 
-                    b.HasOne("backend_cine.Models.Movie", null)
-                        .WithMany()
-                        .HasForeignKey("MoviesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<long>("MoviesId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("CinemasId", "MoviesId");
+
+                    b.HasIndex("MoviesId");
+
+                    b.ToTable("cinema_movies", "gcinema");
                 });
 
-            modelBuilder.Entity("FormatMovie", b =>
+            modelBuilder.Entity("format_movies", b =>
                 {
-                    b.HasOne("backend_cine.Models.Format", null)
-                        .WithMany()
-                        .HasForeignKey("FormatsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<long>("FormatsId")
+                        .HasColumnType("bigint");
 
-                    b.HasOne("backend_cine.Models.Movie", null)
-                        .WithMany()
-                        .HasForeignKey("MoviesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.Property<long>("MoviesId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("FormatsId", "MoviesId");
+
+                    b.HasIndex("MoviesId");
+
+                    b.ToTable("format_movies", "gcinema");
                 });
 
             modelBuilder.Entity("GenreMovie", b =>
@@ -309,6 +282,36 @@ namespace backend_cine.Migrations
                         .IsRequired();
 
                     b.Navigation("Cinema");
+                });
+
+            modelBuilder.Entity("cinema_movies", b =>
+                {
+                    b.HasOne("backend_cine.Models.Cinema", null)
+                        .WithMany()
+                        .HasForeignKey("CinemasId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend_cine.Models.Movie", null)
+                        .WithMany()
+                        .HasForeignKey("MoviesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("format_movies", b =>
+                {
+                    b.HasOne("backend_cine.Models.Format", null)
+                        .WithMany()
+                        .HasForeignKey("FormatsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("backend_cine.Models.Movie", null)
+                        .WithMany()
+                        .HasForeignKey("MoviesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("backend_cine.Models.Cinema", b =>
