@@ -1,11 +1,21 @@
 using Microsoft.AspNetCore.Mvc;
 using backend_cine.Models;
 using backend_cine.Interfaces;
+using System.Net.Mime;
+using backend_cine.Dbcontext;
 
 [ApiController]
+[Produces(MediaTypeNames.Application.Json)]
 [Route("api/cinemas")]
 public class CinemaController : ControllerBase, ICrud<Cinema>
 {
+
+	private readonly DbContextCinema _context;
+
+	public CinemaController(DbContextCinema context)
+	{
+		_context = context;
+	}
 
 	[HttpGet]
 	public ActionResult<List<Cinema>> FindAll()
@@ -36,7 +46,9 @@ public class CinemaController : ControllerBase, ICrud<Cinema>
 	}
 
 	[HttpPost]
-	public IActionResult Add(Cinema obj)
+	[ProducesResponseType(StatusCodes.Status201Created)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	public IActionResult Add([FromBody] Cinema obj)
 	{
 		if (obj is null)
 		{

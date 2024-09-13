@@ -1,10 +1,10 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace backend_cine.Models;
-
-public class Cinema
+[Table("cinemas")]
+public class Cinema : BaseEntity
 {
-    public long Id { get; set; }
-
-    public required string Name { get; set; }
-
-    public required string Address { get; set; }
+    public string Name { get; set; }
+    public string Address { get; set; }
+    public ICollection<User> Users { get; set; } = new List<User>();
 }
