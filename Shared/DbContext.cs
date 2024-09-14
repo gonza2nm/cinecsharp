@@ -76,9 +76,9 @@ public sealed class DbContextCinema : DbContext
       tb.HasKey(c => c.Id);
       tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
       tb.Property(c => c.TheaterName).HasMaxLength(5).HasColumnName("theater_name");
-      tb.Property(c => c.Chairs);
       tb.HasMany(c => c.Showtimes).WithOne(c => c.Theater).HasForeignKey(c => c.TheaterId);
       tb.HasOne(c => c.Cinema).WithMany(c => c.Theaters).HasForeignKey(c => c.CinemaId);
+      tb.HasMany(c => c.Rows).WithOne(c => c.Theater).HasForeignKey(c => c.TheaterId);
     });
     builder.Entity<Purchase>(tb =>
     {
@@ -102,9 +102,29 @@ public sealed class DbContextCinema : DbContext
     });
     builder.Entity<Ticket>(tb =>
     {
-
+      tb.HasKey(c => c.Id);
+      tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
+      tb.Property(c => c.TicketNumber).HasColumnName("ticket_no");
+      tb.HasOne(c => c.Showtime).WithMany(c => c.Tickets).HasForeignKey(c => c.ShowtimeId);
+      tb.HasOne(c => c.Purchase).WithMany(c => c.Tickets).HasForeignKey(c => c.PurchaseId);
     });
-    /*Modificar entidad  Ticket  
+    builder.Entity<Row>(tb =>
+    {
+      tb.HasKey(c => c.Id);
+      tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
+      tb.Property(c => c.RowNumber).HasColumnName("row_no");
+      tb.Property(c => c.TotalCapacity).HasColumnName("total_capacity");
+      tb.HasOne(c => c.Theater).WithMany(c => c.Rows).HasForeignKey(c => c.TheaterId);
+      tb.HasMany(c => c.Chairs).WithOne(c => c.Row).HasForeignKey(c => c.RowId);
+    });
+    builder.Entity<Chair>(tb =>
+    {
+      tb.HasKey(c => c.Id);
+      tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
+      tb.Property(c => c.ChairNumber).HasColumnName("chair_no");
+      tb.HasOne(c => c.Row).WithMany(c => c.Chairs).HasForeignKey(c => c.RowId);
+    });
+    /* 
     1. ver como agregar la clase chair para tener un mejor control de cuantas sillas hay ocupadas
     2. dotnet ef migrations add PreFinalDatabase
     3. dotnet ef database update
