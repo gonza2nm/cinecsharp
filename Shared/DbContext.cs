@@ -30,9 +30,15 @@ public sealed class DbContextCinema : DbContext
       tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
       tb.Property(c => c.Name).HasColumnName("cinema_name").HasColumnType("varchar(50)");
       tb.Property(c => c.Address).HasColumnName("address").HasColumnType("varchar(80)");
+      tb.HasIndex(c => c.Address).IsUnique();
       tb.HasMany(c => c.Users).WithOne(c => c.Cinema).HasForeignKey(c => c.CinemaId).IsRequired(false);
       tb.HasMany(c => c.Theaters).WithOne(c => c.Cinema).HasForeignKey(c => c.CinemaId);
       tb.HasMany(c => c.Movies).WithMany(c => c.Cinemas);
+      tb.HasData(
+        new Cinema { Id = 1, Name = "Cinepolis", Address = "Av. Eva Peron 5856, Rosario, Santa Fe" },
+        new Cinema { Id = 2, Name = "Showcase", Address = "Junin 501, Rosario, Santa Fe" },
+        new Cinema { Id = 3, Name = "CineUTN", Address = "Zeballos 1341, Rosario, Santa Fe" }
+      );
     });
     builder.Entity<User>(tb =>
     {
