@@ -1,7 +1,5 @@
-using System.Data.Common;
 using backend_cine.Dbcontext;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +10,7 @@ builder.Services.AddDbContext<DbContextCinema>(options =>
     options.UseSqlServer(connectionString);
     options.EnableSensitiveDataLogging();
 });
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
