@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend_cine.Dbcontext;
 
@@ -11,9 +12,11 @@ using backend_cine.Dbcontext;
 namespace backend_cine.Migrations
 {
     [DbContext(typeof(DbContextCinema))]
-    partial class DbContextCinemaModelSnapshot : ModelSnapshot
+    [Migration("20240914164155_CorreccionDeSQL")]
+    partial class CorreccionDeSQL
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -87,7 +90,7 @@ namespace backend_cine.Migrations
 
                     b.HasIndex("RowId");
 
-                    b.ToTable("chair", "gcinema");
+                    b.ToTable("Chairs", "gcinema");
                 });
 
             modelBuilder.Entity("backend_cine.Models.Cinema", b =>
@@ -110,30 +113,7 @@ namespace backend_cine.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Address")
-                        .IsUnique();
-
                     b.ToTable("cinema", "gcinema");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            Address = "Av. Eva Peron 5856, Rosario, Santa Fe",
-                            Name = "Cinepolis"
-                        },
-                        new
-                        {
-                            Id = 2L,
-                            Address = "Junin 501, Rosario, Santa Fe",
-                            Name = "Showcase"
-                        },
-                        new
-                        {
-                            Id = 3L,
-                            Address = "Zeballos 1341, Rosario, Santa Fe",
-                            Name = "CineUTN"
-                        });
                 });
 
             modelBuilder.Entity("backend_cine.Models.Format", b =>
@@ -219,7 +199,7 @@ namespace backend_cine.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("purchase", "gcinema");
+                    b.ToTable("Purchases", "gcinema");
                 });
 
             modelBuilder.Entity("backend_cine.Models.Row", b =>
@@ -245,7 +225,7 @@ namespace backend_cine.Migrations
 
                     b.HasIndex("TheaterId");
 
-                    b.ToTable("row", "gcinema");
+                    b.ToTable("Rows", "gcinema");
                 });
 
             modelBuilder.Entity("backend_cine.Models.Showtime", b =>
@@ -286,7 +266,7 @@ namespace backend_cine.Migrations
 
                     b.HasIndex("TheaterId");
 
-                    b.ToTable("showtime", "gcinema");
+                    b.ToTable("Showtimes", "gcinema");
                 });
 
             modelBuilder.Entity("backend_cine.Models.Theater", b =>
@@ -337,7 +317,7 @@ namespace backend_cine.Migrations
 
                     b.HasIndex("ShowtimeId");
 
-                    b.ToTable("ticket", "gcinema");
+                    b.ToTable("Tickets", "gcinema");
                 });
 
             modelBuilder.Entity("backend_cine.Models.User", b =>
