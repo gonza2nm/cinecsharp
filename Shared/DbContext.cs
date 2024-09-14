@@ -27,9 +27,9 @@ public sealed class DbContextCinema : DbContext
     {
       tb.ToTable("cinema");
       tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
-      tb.Property(c => c.Name).HasColumnName("cinema_name").HasColumnType("varchar(50)");
-      tb.Property(c => c.Address).HasColumnName("address").HasColumnType("varchar(80)");
+      tb.Property(c => c.Id).UseIdentityColumn().HasColumnName("id");
+      tb.Property(c => c.Name).HasColumnType("varchar(50)").HasColumnName("name");
+      tb.Property(c => c.Address).HasColumnType("varchar(80)").HasColumnName("address");
       tb.HasIndex(c => c.Address).IsUnique();
       tb.HasMany(c => c.Users).WithOne(c => c.Cinema).HasForeignKey(c => c.CinemaId).IsRequired(false);
       tb.HasMany(c => c.Theaters).WithOne(c => c.Cinema).HasForeignKey(c => c.CinemaId);
@@ -44,15 +44,16 @@ public sealed class DbContextCinema : DbContext
     {
       tb.ToTable("user");
       tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
-      tb.Property(c => c.Name).HasMaxLength(30);
-      tb.Property(c => c.Surname).HasMaxLength(30);
+      tb.Property(c => c.Id).UseIdentityColumn().HasColumnName("id");
+      tb.Property(c => c.Name).HasMaxLength(30).HasColumnName("name");
+      tb.Property(c => c.Surname).HasMaxLength(30).HasColumnName("surname");
       tb.HasIndex(c => c.Dni).IsUnique();
-      tb.Property(c => c.Dni).HasColumnType("varchar(12)");
-      tb.Property(c => c.Email).HasMaxLength(50);
-      tb.Property(c => c.Password).HasMaxLength(16);
-      tb.Property(c => c.Created).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()");
-      tb.Property(c => c.IsManager).HasDefaultValue(false);
+      tb.Property(c => c.Dni).HasColumnType("varchar(12)").HasColumnName("dni");
+      tb.Property(c => c.Email).HasMaxLength(50).HasColumnName("email");
+      tb.HasIndex(c => c.Email).IsUnique();
+      tb.Property(c => c.Password).HasMaxLength(16).HasColumnName("password");
+      tb.Property(c => c.Created).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()").HasColumnName("created_date");
+      tb.Property(c => c.IsManager).HasDefaultValue(false).HasColumnName("is_manager");
       tb.Property(c => c.CinemaId).HasColumnName("cinema_id");
       tb.HasOne(c => c.Cinema).WithMany(c => c.Users).HasForeignKey(c => c.CinemaId).IsRequired();
       tb.HasMany(c => c.Purchases).WithOne(c => c.User).HasForeignKey(c => c.UserId);
@@ -61,9 +62,9 @@ public sealed class DbContextCinema : DbContext
     {
       tb.ToTable("movie");
       tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
-      tb.Property(c => c.Name).HasMaxLength(50);
-      tb.Property(c => c.Description).HasMaxLength(200);
+      tb.Property(c => c.Id).UseIdentityColumn().HasColumnName("id");
+      tb.Property(c => c.Name).HasMaxLength(50).HasColumnName("name");
+      tb.Property(c => c.Description).HasMaxLength(200).HasColumnName("description");
       tb.HasMany(c => c.Cinemas).WithMany(c => c.Movies);
       tb.HasMany(c => c.Formats).WithMany(c => c.Movies);
       tb.HasMany(c => c.Languages).WithMany(c => c.Movies);
@@ -73,8 +74,9 @@ public sealed class DbContextCinema : DbContext
     {
       tb.ToTable("format");
       tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
-      tb.Property(c => c.Name).HasMaxLength(40);
+      tb.Property(c => c.Id).UseIdentityColumn().HasColumnName("id");
+      tb.Property(c => c.Name).HasMaxLength(40).HasColumnName("name");
+      tb.HasIndex(c => c.Name).IsUnique();
       tb.HasMany(c => c.Movies).WithMany(c => c.Formats);
       tb.HasMany(c => c.Showtimes).WithOne(c => c.Format).HasForeignKey(c => c.FormatId);
     });
@@ -82,8 +84,9 @@ public sealed class DbContextCinema : DbContext
     {
       tb.ToTable("language");
       tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
-      tb.Property(c => c.Name).HasMaxLength(40);
+      tb.Property(c => c.Id).UseIdentityColumn().HasColumnName("id");
+      tb.Property(c => c.Name).HasMaxLength(40).HasColumnName("name");
+      tb.HasIndex(c => c.Name).IsUnique();
       tb.HasMany(c => c.Movies).WithMany(c => c.Languages);
       tb.HasMany(c => c.Showtimes).WithOne(c => c.Language).HasForeignKey(c => c.LanguageId);
     });
@@ -91,7 +94,7 @@ public sealed class DbContextCinema : DbContext
     {
       tb.ToTable("theater");
       tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
+      tb.Property(c => c.Id).UseIdentityColumn().HasColumnName("id");
       tb.Property(c => c.TheaterName).HasMaxLength(5).HasColumnName("theater_name");
       tb.HasMany(c => c.Showtimes).WithOne(c => c.Theater).HasForeignKey(c => c.TheaterId);
       tb.HasOne(c => c.Cinema).WithMany(c => c.Theaters).HasForeignKey(c => c.CinemaId);
@@ -101,9 +104,9 @@ public sealed class DbContextCinema : DbContext
     {
       tb.ToTable("purchase");
       tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
+      tb.Property(c => c.Id).UseIdentityColumn().HasColumnName("id");
       tb.Property(c => c.Total).HasPrecision(14, 2).HasColumnName("total");
-      tb.Property(c => c.PurchaseDate).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()");
+      tb.Property(c => c.PurchaseDate).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()").HasColumnName("purchase_date");
       tb.HasOne(c => c.User).WithMany(c => c.Purchases).HasForeignKey(c => c.UserId);
       tb.HasMany(c => c.Tickets).WithOne(c => c.Purchase).HasForeignKey(c => c.PurchaseId);
     });
@@ -111,8 +114,8 @@ public sealed class DbContextCinema : DbContext
     {
       tb.ToTable("showtime");
       tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
-      tb.Property(c => c.DayAndHourStart).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()");
+      tb.Property(c => c.Id).UseIdentityColumn().HasColumnName("id");
+      tb.Property(c => c.DayAndHourStart).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()").HasColumnName("day_hour_start");
       tb.HasOne(c => c.Movie).WithMany(c => c.Showtimes).HasForeignKey(c => c.MovieId);
       tb.HasOne(c => c.Language).WithMany(c => c.Showtimes).HasForeignKey(c => c.LanguageId);
       tb.HasOne(c => c.Format).WithMany(c => c.Showtimes).HasForeignKey(c => c.FormatId);
@@ -123,7 +126,7 @@ public sealed class DbContextCinema : DbContext
     {
       tb.ToTable("ticket");
       tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
+      tb.Property(c => c.Id).UseIdentityColumn().HasColumnName("id");
       tb.Property(c => c.TicketNumber).HasColumnName("ticket_no");
       tb.HasOne(c => c.Showtime).WithMany(c => c.Tickets).HasForeignKey(c => c.ShowtimeId).OnDelete(DeleteBehavior.Restrict);
       tb.HasOne(c => c.Purchase).WithMany(c => c.Tickets).HasForeignKey(c => c.PurchaseId).OnDelete(DeleteBehavior.Restrict);
@@ -132,7 +135,7 @@ public sealed class DbContextCinema : DbContext
     {
       tb.ToTable("row");
       tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
+      tb.Property(c => c.Id).UseIdentityColumn().HasColumnName("id");
       tb.Property(c => c.RowNumber).HasColumnName("row_no");
       tb.Property(c => c.TotalCapacity).HasColumnName("total_capacity");
       tb.HasOne(c => c.Theater).WithMany(c => c.Rows).HasForeignKey(c => c.TheaterId);
@@ -142,16 +145,13 @@ public sealed class DbContextCinema : DbContext
     {
       tb.ToTable("chair");
       tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
+      tb.Property(c => c.Id).UseIdentityColumn().HasColumnName("id");
       tb.Property(c => c.ChairNumber).HasColumnName("chair_no");
       tb.HasOne(c => c.Row).WithMany(c => c.Chairs).HasForeignKey(c => c.RowId);
     });
 
   }
   /* 
-  1. ver como agregar la clase chair para tener un mejor control de cuantas sillas hay ocupadas
-  2. dotnet ef migrations add PreFinalDatabase
-  3. dotnet ef database update
   4. Create all Controllers and your CRUDs
   5. Agregar autenticacion y mejorar metodos
   */
