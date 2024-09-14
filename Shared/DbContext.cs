@@ -1,4 +1,3 @@
-using System.IO.Compression;
 using backend_cine.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,6 +8,18 @@ public sealed class DbContextCinema : DbContext
 {
   public DbContextCinema(DbContextOptions<DbContextCinema> options) : base(options)
   { }
+  public DbSet<Cinema> Cinemas { get; set; }
+  public DbSet<User> Users { get; set; }
+  public DbSet<Movie> Movies { get; set; }
+  public DbSet<Format> Formats { get; set; }
+  public DbSet<Language> Languages { get; set; }
+  public DbSet<Theater> Theaters { get; set; }
+  public DbSet<Purchase> Purchases { get; set; }
+  public DbSet<Showtime> Showtimes { get; set; }
+  public DbSet<Ticket> Tickets { get; set; }
+  public DbSet<Row> Rows { get; set; }
+  public DbSet<Chair> Chairs { get; set; }
+
   protected override void OnModelCreating(ModelBuilder builder)
   {
     builder.HasDefaultSchema("gcinema");
@@ -82,6 +93,7 @@ public sealed class DbContextCinema : DbContext
     });
     builder.Entity<Purchase>(tb =>
     {
+      tb.ToTable("purchase");
       tb.HasKey(c => c.Id);
       tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
       tb.Property(c => c.Total).HasPrecision(14, 2).HasColumnName("total");
@@ -91,9 +103,10 @@ public sealed class DbContextCinema : DbContext
     });
     builder.Entity<Showtime>(tb =>
     {
+      tb.ToTable("showtime");
       tb.HasKey(c => c.Id);
       tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
-      tb.Property(c => c.DayAndHourStart).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATATIME()");
+      tb.Property(c => c.DayAndHourStart).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()");
       tb.HasOne(c => c.Movie).WithMany(c => c.Showtimes).HasForeignKey(c => c.MovieId);
       tb.HasOne(c => c.Language).WithMany(c => c.Showtimes).HasForeignKey(c => c.LanguageId);
       tb.HasOne(c => c.Format).WithMany(c => c.Showtimes).HasForeignKey(c => c.FormatId);
@@ -102,14 +115,16 @@ public sealed class DbContextCinema : DbContext
     });
     builder.Entity<Ticket>(tb =>
     {
+      tb.ToTable("ticket");
       tb.HasKey(c => c.Id);
       tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
       tb.Property(c => c.TicketNumber).HasColumnName("ticket_no");
-      tb.HasOne(c => c.Showtime).WithMany(c => c.Tickets).HasForeignKey(c => c.ShowtimeId);
-      tb.HasOne(c => c.Purchase).WithMany(c => c.Tickets).HasForeignKey(c => c.PurchaseId);
+      tb.HasOne(c => c.Showtime).WithMany(c => c.Tickets).HasForeignKey(c => c.ShowtimeId).OnDelete(DeleteBehavior.Restrict);
+      tb.HasOne(c => c.Purchase).WithMany(c => c.Tickets).HasForeignKey(c => c.PurchaseId).OnDelete(DeleteBehavior.Restrict);
     });
     builder.Entity<Row>(tb =>
     {
+      tb.ToTable("row");
       tb.HasKey(c => c.Id);
       tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
       tb.Property(c => c.RowNumber).HasColumnName("row_no");
@@ -119,20 +134,19 @@ public sealed class DbContextCinema : DbContext
     });
     builder.Entity<Chair>(tb =>
     {
+      tb.ToTable("chair");
       tb.HasKey(c => c.Id);
       tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
       tb.Property(c => c.ChairNumber).HasColumnName("chair_no");
       tb.HasOne(c => c.Row).WithMany(c => c.Chairs).HasForeignKey(c => c.RowId);
     });
-    /* 
-    1. ver como agregar la clase chair para tener un mejor control de cuantas sillas hay ocupadas
-    2. dotnet ef migrations add PreFinalDatabase
-    3. dotnet ef database update
-    4. Create all Controllers and your CRUDs
-    5. Agregar autenticacion y mejorar metodos
-    */
-  }
-  public DbSet<Cinema> Cinemas { get; set; }
-  public DbSet<User> Users { get; set; }
 
+  }
+  /* 
+  1. ver como agregar la clase chair para tener un mejor control de cuantas sillas hay ocupadas
+  2. dotnet ef migrations add PreFinalDatabase
+  3. dotnet ef database update
+  4. Create all Controllers and your CRUDs
+  5. Agregar autenticacion y mejorar metodos
+  */
 }
