@@ -34,10 +34,11 @@ public sealed class DbContextCinema : DbContext
       tb.Property(c => c.Dni).HasColumnType("varchar(12)");
       tb.Property(c => c.Email).HasMaxLength(50);
       tb.Property(c => c.Password).HasMaxLength(16);
-      tb.Property(c => c.Created).HasDefaultValueSql("getdate()");
+      tb.Property(c => c.Created).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()");
       tb.Property(c => c.IsManager).HasDefaultValue(false);
       tb.Property(c => c.CinemaId).HasColumnName("cinema_id");
       tb.HasOne(c => c.Cinema).WithMany(c => c.Users).HasForeignKey(c => c.CinemaId).IsRequired();
+      tb.HasMany(c => c.Purchases).WithOne(c => c.User).HasForeignKey(c => c.UserId);
     });
     builder.Entity<Movie>(tb =>
     {
@@ -79,7 +80,31 @@ public sealed class DbContextCinema : DbContext
       tb.HasMany(c => c.Showtimes).WithOne(c => c.Theater).HasForeignKey(c => c.TheaterId);
       tb.HasOne(c => c.Cinema).WithMany(c => c.Theaters).HasForeignKey(c => c.CinemaId);
     });
-    /*Modificar entidad Purchase, Showtime, Ticket, User and do 
+    builder.Entity<Purchase>(tb =>
+    {
+      tb.HasKey(c => c.Id);
+      tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
+      tb.Property(c => c.Total).HasPrecision(14, 2).HasColumnName("total");
+      tb.Property(c => c.PurchaseDate).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()");
+      tb.HasOne(c => c.User).WithMany(c => c.Purchases).HasForeignKey(c => c.UserId);
+      tb.HasMany(c => c.Tickets).WithOne(c => c.Purchase).HasForeignKey(c => c.PurchaseId);
+    });
+    builder.Entity<Showtime>(tb =>
+    {
+      tb.HasKey(c => c.Id);
+      tb.Property(c => c.Id).UseIdentityColumn().ValueGeneratedOnAdd();
+      tb.Property(c => c.DayAndHourStart).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATATIME()");
+      tb.HasOne(c => c.Movie).WithMany(c => c.Showtimes).HasForeignKey(c => c.MovieId);
+      tb.HasOne(c => c.Language).WithMany(c => c.Showtimes).HasForeignKey(c => c.LanguageId);
+      tb.HasOne(c => c.Format).WithMany(c => c.Showtimes).HasForeignKey(c => c.FormatId);
+      tb.HasOne(c => c.Theater).WithMany(c => c.Showtimes).HasForeignKey(c => c.TheaterId);
+      tb.HasMany(c => c.Tickets).WithOne(c => c.Showtime).HasForeignKey(c => c.ShowtimeId);
+    });
+    builder.Entity<Ticket>(tb =>
+    {
+
+    });
+    /*Modificar entidad  Ticket  
     1. ver como agregar la clase chair para tener un mejor control de cuantas sillas hay ocupadas
     2. dotnet ef migrations add PreFinalDatabase
     3. dotnet ef database update
