@@ -14,7 +14,6 @@ POST {{cinema_url}}
 Content-Type: application/json
 
 {
-  "Id": 3,
   "Name": "Gonza's Cinema",
   "Address": "Pte Peron 390, La Plata, BS AS"
 }
