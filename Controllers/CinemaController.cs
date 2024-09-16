@@ -6,7 +6,6 @@ using backend_cine.Dbcontext;
 using Microsoft.EntityFrameworkCore;
 using backend_cine.DTOs;
 using backend_cine.Responses;
-using System.Net.Sockets;
 
 [ApiController]
 [Produces(MediaTypeNames.Application.Json)]
@@ -25,15 +24,25 @@ public class CinemaController : ControllerBase, ICrud<CinemaDTO>
 	[HttpGet]
 	[ProducesResponseType(StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 	public async Task<ActionResult<List<CinemaDTO>>> FindAll()
 	{
-		var cinemasDTO = new List<CinemaDTO>();
-		var cinemasDB = await _context.Cinemas.ToListAsync();
-		foreach (var item in cinemasDB)
+		try
 		{
-			cinemasDTO.Add(new CinemaDTO { Id = item.Id, Name = item.Name, Address = item.Address });
+			var cinemasDTO = new List<CinemaDTO>();
+			var cinemasDB = await _context.Cinemas.ToListAsync();
+			foreach (var item in cinemasDB)
+			{
+				cinemasDTO.Add(new CinemaDTO { Id = item.Id, Name = item.Name, Address = item.Address });
+			}
+			return Ok(cinemasDTO);
 		}
-		return Ok(cinemasDTO);
+		catch (Exception ex)
+		{
+			Console.WriteLine(ex.Message);
+			return StatusCode(StatusCodes.Status500InternalServerError, new { message = "An error occurred while processing your request.", error = ex.Message });
+		}
+
 	}
 
 	//GET ONE

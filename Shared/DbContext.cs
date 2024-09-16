@@ -139,8 +139,6 @@ public sealed class DbContextCinema : DbContext
     });
 
   }
-
-  /*si pongo owner a las clases tengo que eliminar el DbSet y tambien tengo que eliminar algunas cosas del OnModelCreating, asi que revisar eso
   /* 
   4. Create all Controllers and your CRUDs
   5. Agregar autenticacion y mejorar metodos
