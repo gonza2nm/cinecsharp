@@ -1,13 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
 using backend_cine.Models;
 using backend_cine.Interfaces;
-using System.Net.Mime;
 using backend_cine.Dbcontext;
+using Microsoft.EntityFrameworkCore;
+using backend_cine.DTOs;
+using backend_cine.Responses;
 
+namespace backend_cine.Controllers;
 [ApiController]
-[Produces(MediaTypeNames.Application.Json)]
+[Produces("application/json")]
 [Route("api/cinemas")]
-public class CinemaController : ControllerBase, ICrud<Cinema>
+public class CinemaController : ControllerBase, ICrud<CinemaDTO>
 {
 
 	private readonly DbContextCinema _context;
@@ -17,86 +20,189 @@ public class CinemaController : ControllerBase, ICrud<Cinema>
 		_context = context;
 	}
 
+	//GET ALL
 	[HttpGet]
-	public ActionResult<List<Cinema>> FindAll()
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+	public async Task<ActionResult<ResponseList<CinemaDTO>>> FindAll()
 	{
-		return new List<Cinema>
+		try
 		{
-			new Cinema{Id = 1, Name = "Showcase", Address = "Cordoba 2000, Rosario, Santa Fe"},
-			new Cinema{Id = 2, Name = "Cinepolis", Address = "Cordoba 2100, Granadero Baigorria, Santa Fe"}
-		};
-	}
-
-	[HttpGet("{id}")]
-	public ActionResult<Cinema> FindOne(long id)
-	{
-		List<Cinema> cinemas = new List<Cinema>
-		{
-			new Cinema{Id = 1, Name = "Showcase", Address = "Cordoba 2000, Rosario, Santa Fe"},
-			new Cinema{Id = 2, Name = "Cinepolis", Address = "Cordoba 2100, Granadero Baigorria, Santa Fe"}
-		};
-
-		Cinema? cinema = cinemas.FirstOrDefault(cinema => cinema.Id == id);
-		if (cinema is null)
-		{
-			return NotFound();
+			var cinemasDTO = new List<CinemaDTO>();
+			var cinemasDB = await _context.Cinemas.ToListAsync();
+			foreach (var item in cinemasDB)
+			{
+				cinemasDTO.Add(new CinemaDTO { Id = item.Id, Name = item.Name, Address = item.Address });
+			}
+			return StatusCode(StatusCodes.Status200OK, new ResponseList<CinemaDTO> { message = "Found cinemas", data = cinemasDTO, error = null });
 		}
-		return cinema;
+		catch (DbUpdateException dbEx)
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError, new ResponseOne<CinemaDTO> { message = "Database error occurred.", error = dbEx.Message, data = null });
+		}
+		catch (Exception ex)
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError, new ResponseOne<CinemaDTO> { message = "An error occurred while processing your request.", error = ex.Message, data = null });
+		}
 
 	}
 
+	//GET ONE
+	[HttpGet("{id}")]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+	public async Task<ActionResult<ResponseOne<CinemaDTO>>> FindOne(long id)
+	{
+		if (id <= 0)
+		{
+			return StatusCode(StatusCodes.Status400BadRequest, new ResponseOne<CinemaDTO> { message = "Invalid Cinema ID", error = "Bad Request", data = null });
+		}
+		try
+		{
+			Cinema? cinemaDB = await _context.Cinemas.FirstOrDefaultAsync(c => c.Id == id);
+			if (cinemaDB is null)
+			{
+				return StatusCode(StatusCodes.Status404NotFound, new ResponseOne<CinemaDTO> { message = $"Cinema with id: {id} not found", error = "Not Found", data = null });
+			}
+			var cinemaDTO = new CinemaDTO
+			{
+				Id = cinemaDB.Id,
+				Name = cinemaDB.Name,
+				Address = cinemaDB.Address
+			};
+			return StatusCode(StatusCodes.Status200OK, new ResponseOne<CinemaDTO> { message = "Found Cinema", data = cinemaDTO, error = null });
+		}
+		catch (DbUpdateException dbEx)
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError, new ResponseOne<CinemaDTO> { message = "Database error occurred.", error = dbEx.Message, data = null });
+		}
+		catch (Exception ex)
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError, new ResponseOne<CinemaDTO> { message = "An error occurred while processing your request.", error = ex.Message, data = null });
+		}
+	}
+
+	//ADD
 	[HttpPost]
+	[Consumes("application/json")]
 	[ProducesResponseType(StatusCodes.Status201Created)]
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	public IActionResult Add([FromBody] Cinema obj)
+	[ProducesResponseType(StatusCodes.Status409Conflict)]
+	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+	public async Task<ActionResult<ResponseOne<CinemaDTO>>> Add([FromBody] CinemaDTO cinemaDTO)
 	{
-		if (obj is null)
+		if (cinemaDTO is null || cinemaDTO.Name == null || cinemaDTO.Address == null)
 		{
-			return BadRequest();
+			return StatusCode(StatusCodes.Status400BadRequest, new ResponseOne<CinemaDTO> { message = "Cinema data is null", data = null, error = "Invalid data" });
 		}
-		return CreatedAtAction(nameof(FindOne), new { id = obj.Id }, obj);
+		try
+		{
+			var cinema = new Cinema
+			{
+				Name = cinemaDTO.Name,
+				Address = cinemaDTO.Address
+			};
+			Cinema? existingCinema = await _context.Cinemas.FirstOrDefaultAsync(c => c.Address == cinemaDTO.Address);
+			if (existingCinema != null)
+			{
+				return StatusCode(StatusCodes.Status409Conflict, new ResponseOne<CinemaDTO> { message = "There is already a cinema in that address", data = null, error = "Conflict in the database" });
+			}
+			await _context.Cinemas.AddAsync(cinema);
+			await _context.SaveChangesAsync();
+			var cinema2 = new CinemaDTO
+			{
+				Id = cinema.Id,
+				Name = cinema.Name,
+				Address = cinema.Address
+			};
+			return StatusCode(StatusCodes.Status201Created, new ResponseOne<CinemaDTO> { message = "Cinema successfully created ", data = cinema2, error = null });
+		}
+		catch (DbUpdateException dbEx)
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError, new ResponseOne<CinemaDTO> { message = "Database error occurred.", error = dbEx.Message, data = null });
+		}
+		catch (Exception ex)
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError, new ResponseOne<CinemaDTO> { message = "An error occurred while processing your request.", error = ex.Message, data = null });
+		}
 	}
 
 	[HttpPut("{id}")]
-	public IActionResult Update(long id, Cinema obj)
+	[Consumes("application/json")]
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status409Conflict)]
+	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+	public async Task<ActionResult<ResponseOne<CinemaDTO>>> Update(long id, CinemaDTO cinemaBody)
 	{
-		if (id != obj.Id)
+		if (id != cinemaBody.Id)
 		{
-			return BadRequest();
+			return StatusCode(StatusCodes.Status400BadRequest, new ResponseOne<CinemaDTO> { message = "The id of the URI is diferent from the id in json object", error = "Bad Request", data = null });
 		}
-		var cinemas = new List<Cinema>{
-			new Cinema{Id = 1, Name = "Showcase", Address = "Cordoba 2000, Rosario, Santa Fe"},
-			new Cinema{Id = 2, Name = "Cinepolis", Address = "Cordoba 2100, Granadero Baigorria, Santa Fe"}
-		};
-		var cinema = cinemas.FirstOrDefault(cinema => cinema.Id == obj.Id);
-		if (cinema is null)
-		{
-			return NotFound();
-		}
-		//make a function to update cinema
 
-		//retorna vacio, aunque deberia retornar que se hicieron correctamente los cambios
-		Console.WriteLine("Se encontro el cine y se actualizo el cine: ", cinema.Name);
-		return NoContent();
+		try
+		{
+			Cinema? updateCinema = await _context.Cinemas.FirstOrDefaultAsync(c => c.Id == id);
+			if (updateCinema is null)
+			{
+				return StatusCode(StatusCodes.Status404NotFound, new ResponseOne<CinemaDTO> { message = $"Cinema with id: {id} not found", error = "Not found", data = null });
+			}
+			Cinema? addressCinema = await _context.Cinemas.FirstOrDefaultAsync(c => c.Address == cinemaBody.Address);
+			if (addressCinema is not null && addressCinema.Id != updateCinema.Id)
+			{
+				return StatusCode(StatusCodes.Status409Conflict, new ResponseOne<CinemaDTO> { message = "The address already exist in another cinema", error = "Conflict in the data", data = null });
+			}
+			updateCinema.Name = cinemaBody.Name;
+			updateCinema.Address = cinemaBody.Address;
+			_context.Cinemas.Update(updateCinema);
+			await _context.SaveChangesAsync();
+			return StatusCode(StatusCodes.Status200OK, new ResponseOne<CinemaDTO> { message = "Cinema updated successfully", error = null, data = null });
+		}
+		catch (DbUpdateException dbEx)
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError, new ResponseOne<CinemaDTO> { message = "Database error occurred.", error = dbEx.Message, data = null });
+		}
+		catch (Exception ex)
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError, new ResponseOne<CinemaDTO> { message = "An error occurred while processing your request.", error = ex.Message, data = null });
+
+		}
 	}
 
 	[HttpDelete("{id}")]
-	public IActionResult Delete(long id)
+	[ProducesResponseType(StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+	public async Task<ActionResult<ResponseOne<CinemaDTO>>> Delete(long id)
 	{
-		var cinemas = new List<Cinema>{
-			new Cinema{Id = 1, Name = "Showcase", Address = "Cordoba 2000, Rosario, Santa Fe"},
-			new Cinema{Id = 2, Name = "Cinepolis", Address = "Cordoba 2100, Granadero Baigorria, Santa Fe"}
-		};
-		var cinema = cinemas.FirstOrDefault(cinema => cinema.Id == id);
-		if (cinema is null)
+		if (id <= 0)
 		{
-			return NotFound();
+			return StatusCode(StatusCodes.Status400BadRequest, new ResponseOne<CinemaDTO> { message = "Invalid Cinema ID", error = "Bad Request", data = null });
 		}
-		//make a function to delete cinema
+		try
+		{
+			Cinema? deleteCinema = await _context.Cinemas.FirstOrDefaultAsync(c => c.Id == id);
+			if (deleteCinema is null)
+			{
+				return StatusCode(StatusCodes.Status404NotFound, new ResponseOne<CinemaDTO> { message = $"Cinema with id: {id} not found", error = "404 Not found", data = null });
+			}
+			_context.Cinemas.Remove(deleteCinema);
+			await _context.SaveChangesAsync();
+			return StatusCode(StatusCodes.Status200OK, new ResponseOne<CinemaDTO> { message = "Cinema deleted successfully", error = null, data = null });
+		}
+		catch (DbUpdateException dbEx)
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError, new ResponseOne<CinemaDTO> { message = "Database error occurred.", error = dbEx.Message, data = null });
+		}
+		catch (Exception ex)
+		{
+			return StatusCode(StatusCodes.Status500InternalServerError, new ResponseOne<CinemaDTO> { message = "An error occurred while processing your request.", error = ex.Message, data = null });
+		}
 
-		//retorna vacio, aunque deberia retornar que se hicieron correctamente los cambios
-		Console.WriteLine("Se encontro el cine y se elimino el cine: ", cinema.Name);
-		return NoContent();
 	}
 
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend_cine.Dbcontext;
 
@@ -11,9 +12,11 @@ using backend_cine.Dbcontext;
 namespace backend_cine.Migrations
 {
     [DbContext(typeof(DbContextCinema))]
-    partial class DbContextCinemaModelSnapshot : ModelSnapshot
+    [Migration("20240916134823_ElimineDefaultSchema")]
+    partial class ElimineDefaultSchema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -71,12 +74,14 @@ namespace backend_cine.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<int>("ChairNumber")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("chair_no");
 
                     b.Property<long>("RowId")
                         .HasColumnType("bigint");
@@ -85,31 +90,34 @@ namespace backend_cine.Migrations
 
                     b.HasIndex("RowId");
 
-                    b.ToTable("Chairs");
+                    b.ToTable("chair", (string)null);
                 });
 
             modelBuilder.Entity("backend_cine.Models.Cinema", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasColumnType("varchar(80)");
+                        .HasColumnType("varchar(80)")
+                        .HasColumnName("address");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("name");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Address")
                         .IsUnique();
 
-                    b.ToTable("Cinemas");
+                    b.ToTable("cinema", (string)null);
 
                     b.HasData(
                         new
@@ -136,82 +144,92 @@ namespace backend_cine.Migrations
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                        .HasColumnType("nvarchar(40)")
+                        .HasColumnName("name");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Formats");
+                    b.ToTable("format", (string)null);
                 });
 
             modelBuilder.Entity("backend_cine.Models.Language", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(40)
-                        .HasColumnType("nvarchar(40)");
+                        .HasColumnType("nvarchar(40)")
+                        .HasColumnName("name");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Name")
                         .IsUnique();
 
-                    b.ToTable("Languages");
+                    b.ToTable("language", (string)null);
                 });
 
             modelBuilder.Entity("backend_cine.Models.Movie", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<string>("Description")
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("description");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("name");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Movies");
+                    b.ToTable("movie", (string)null);
                 });
 
             modelBuilder.Entity("backend_cine.Models.Purchase", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("PurchaseDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("DATETIME2(3)")
+                        .HasColumnName("purchase_date")
                         .HasDefaultValueSql("SYSDATETIME()");
 
                     b.Property<decimal>("Total")
                         .HasPrecision(14, 2)
-                        .HasColumnType("decimal(14,2)");
+                        .HasColumnType("decimal(14,2)")
+                        .HasColumnName("total");
 
                     b.Property<long>("UserId")
                         .HasColumnType("bigint");
@@ -220,44 +238,49 @@ namespace backend_cine.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Purchases");
+                    b.ToTable("purchase", (string)null);
                 });
 
             modelBuilder.Entity("backend_cine.Models.Row", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<int>("RowNumber")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("row_no");
 
                     b.Property<long>("TheaterId")
                         .HasColumnType("bigint");
 
                     b.Property<int>("TotalCapacity")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("total_capacity");
 
                     b.HasKey("Id");
 
                     b.HasIndex("TheaterId");
 
-                    b.ToTable("Rows");
+                    b.ToTable("row", (string)null);
                 });
 
             modelBuilder.Entity("backend_cine.Models.Showtime", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<DateTime>("DayAndHourStart")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("DATETIME2(3)")
+                        .HasColumnName("day_hour_start")
                         .HasDefaultValueSql("SYSDATETIME()");
 
                     b.Property<DateTime>("DayAndHourToFinish")
@@ -285,14 +308,15 @@ namespace backend_cine.Migrations
 
                     b.HasIndex("TheaterId");
 
-                    b.ToTable("Showtimes");
+                    b.ToTable("showtime", (string)null);
                 });
 
             modelBuilder.Entity("backend_cine.Models.Theater", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
@@ -302,20 +326,22 @@ namespace backend_cine.Migrations
                     b.Property<string>("TheaterName")
                         .IsRequired()
                         .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                        .HasColumnType("nvarchar(5)")
+                        .HasColumnName("theater_name");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CinemaId");
 
-                    b.ToTable("Theaters");
+                    b.ToTable("theater", (string)null);
                 });
 
             modelBuilder.Entity("backend_cine.Models.Ticket", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
@@ -326,7 +352,8 @@ namespace backend_cine.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<int>("TicketNumber")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("ticket_no");
 
                     b.HasKey("Id");
 
@@ -334,53 +361,62 @@ namespace backend_cine.Migrations
 
                     b.HasIndex("ShowtimeId");
 
-                    b.ToTable("Tickets");
+                    b.ToTable("ticket", (string)null);
                 });
 
             modelBuilder.Entity("backend_cine.Models.User", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<long>("CinemaId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("cinema_id");
 
                     b.Property<DateTime>("Created")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("DATETIME2(3)")
+                        .HasColumnName("created_date")
                         .HasDefaultValueSql("SYSDATETIME()");
 
                     b.Property<string>("Dni")
                         .IsRequired()
-                        .HasColumnType("varchar(12)");
+                        .HasColumnType("varchar(12)")
+                        .HasColumnName("dni");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("email");
 
                     b.Property<bool>("IsManager")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(false);
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_manager");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("name");
 
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(16)
-                        .HasColumnType("nvarchar(16)");
+                        .HasColumnType("nvarchar(16)")
+                        .HasColumnName("password");
 
                     b.Property<string>("Surname")
                         .IsRequired()
                         .HasMaxLength(30)
-                        .HasColumnType("nvarchar(30)");
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("surname");
 
                     b.HasKey("Id");
 
@@ -392,7 +428,7 @@ namespace backend_cine.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("user", (string)null);
                 });
 
             modelBuilder.Entity("CinemaMovie", b =>

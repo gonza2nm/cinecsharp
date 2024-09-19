@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend_cine.Dbcontext;
 
@@ -11,12 +12,15 @@ using backend_cine.Dbcontext;
 namespace backend_cine.Migrations
 {
     [DbContext(typeof(DbContextCinema))]
-    partial class DbContextCinemaModelSnapshot : ModelSnapshot
+    [Migration("20240914195808_CorreccionDeEntidades")]
+    partial class CorreccionDeEntidades
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("gcinema")
                 .HasAnnotation("ProductVersion", "8.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
@@ -34,7 +38,7 @@ namespace backend_cine.Migrations
 
                     b.HasIndex("MoviesId");
 
-                    b.ToTable("CinemaMovie");
+                    b.ToTable("CinemaMovie", "gcinema");
                 });
 
             modelBuilder.Entity("FormatMovie", b =>
@@ -49,7 +53,7 @@ namespace backend_cine.Migrations
 
                     b.HasIndex("MoviesId");
 
-                    b.ToTable("FormatMovie");
+                    b.ToTable("FormatMovie", "gcinema");
                 });
 
             modelBuilder.Entity("LanguageMovie", b =>
@@ -64,7 +68,7 @@ namespace backend_cine.Migrations
 
                     b.HasIndex("MoviesId");
 
-                    b.ToTable("LanguageMovie");
+                    b.ToTable("LanguageMovie", "gcinema");
                 });
 
             modelBuilder.Entity("backend_cine.Models.Chair", b =>
@@ -76,7 +80,8 @@ namespace backend_cine.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<int>("ChairNumber")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("chair_no");
 
                     b.Property<long>("RowId")
                         .HasColumnType("bigint");
@@ -85,7 +90,7 @@ namespace backend_cine.Migrations
 
                     b.HasIndex("RowId");
 
-                    b.ToTable("Chairs");
+                    b.ToTable("chair", "gcinema");
                 });
 
             modelBuilder.Entity("backend_cine.Models.Cinema", b =>
@@ -98,18 +103,20 @@ namespace backend_cine.Migrations
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasColumnType("varchar(80)");
+                        .HasColumnType("varchar(80)")
+                        .HasColumnName("address");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("varchar(50)")
+                        .HasColumnName("cinema_name");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Address")
                         .IsUnique();
 
-                    b.ToTable("Cinemas");
+                    b.ToTable("cinema", "gcinema");
 
                     b.HasData(
                         new
@@ -147,10 +154,7 @@ namespace backend_cine.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Formats");
+                    b.ToTable("format", "gcinema");
                 });
 
             modelBuilder.Entity("backend_cine.Models.Language", b =>
@@ -168,10 +172,7 @@ namespace backend_cine.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Name")
-                        .IsUnique();
-
-                    b.ToTable("Languages");
+                    b.ToTable("language", "gcinema");
                 });
 
             modelBuilder.Entity("backend_cine.Models.Movie", b =>
@@ -193,7 +194,7 @@ namespace backend_cine.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Movies");
+                    b.ToTable("movie", "gcinema");
                 });
 
             modelBuilder.Entity("backend_cine.Models.Purchase", b =>
@@ -211,7 +212,8 @@ namespace backend_cine.Migrations
 
                     b.Property<decimal>("Total")
                         .HasPrecision(14, 2)
-                        .HasColumnType("decimal(14,2)");
+                        .HasColumnType("decimal(14,2)")
+                        .HasColumnName("total");
 
                     b.Property<long>("UserId")
                         .HasColumnType("bigint");
@@ -220,7 +222,7 @@ namespace backend_cine.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Purchases");
+                    b.ToTable("purchase", "gcinema");
                 });
 
             modelBuilder.Entity("backend_cine.Models.Row", b =>
@@ -232,19 +234,21 @@ namespace backend_cine.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<int>("RowNumber")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("row_no");
 
                     b.Property<long>("TheaterId")
                         .HasColumnType("bigint");
 
                     b.Property<int>("TotalCapacity")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("total_capacity");
 
                     b.HasKey("Id");
 
                     b.HasIndex("TheaterId");
 
-                    b.ToTable("Rows");
+                    b.ToTable("row", "gcinema");
                 });
 
             modelBuilder.Entity("backend_cine.Models.Showtime", b =>
@@ -285,7 +289,7 @@ namespace backend_cine.Migrations
 
                     b.HasIndex("TheaterId");
 
-                    b.ToTable("Showtimes");
+                    b.ToTable("showtime", "gcinema");
                 });
 
             modelBuilder.Entity("backend_cine.Models.Theater", b =>
@@ -302,13 +306,14 @@ namespace backend_cine.Migrations
                     b.Property<string>("TheaterName")
                         .IsRequired()
                         .HasMaxLength(5)
-                        .HasColumnType("nvarchar(5)");
+                        .HasColumnType("nvarchar(5)")
+                        .HasColumnName("theater_name");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CinemaId");
 
-                    b.ToTable("Theaters");
+                    b.ToTable("theater", "gcinema");
                 });
 
             modelBuilder.Entity("backend_cine.Models.Ticket", b =>
@@ -326,7 +331,8 @@ namespace backend_cine.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<int>("TicketNumber")
-                        .HasColumnType("int");
+                        .HasColumnType("int")
+                        .HasColumnName("ticket_no");
 
                     b.HasKey("Id");
 
@@ -334,7 +340,7 @@ namespace backend_cine.Migrations
 
                     b.HasIndex("ShowtimeId");
 
-                    b.ToTable("Tickets");
+                    b.ToTable("ticket", "gcinema");
                 });
 
             modelBuilder.Entity("backend_cine.Models.User", b =>
@@ -346,7 +352,8 @@ namespace backend_cine.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<long>("CinemaId")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("cinema_id");
 
                     b.Property<DateTime>("Created")
                         .ValueGeneratedOnAdd()
@@ -389,10 +396,7 @@ namespace backend_cine.Migrations
                     b.HasIndex("Dni")
                         .IsUnique();
 
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.ToTable("Users");
+                    b.ToTable("user", "gcinema");
                 });
 
             modelBuilder.Entity("CinemaMovie", b =>
