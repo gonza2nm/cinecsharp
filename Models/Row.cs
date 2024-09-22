@@ -6,5 +6,5 @@ public class Row : BaseEntity
   public int TotalCapacity { get; set; }
   public long TheaterId { get; set; }
   public Theater Theater { get; set; } = null!;
-  public List<Chair> Chairs { get; set; } = new List<Chair>();
+  public List<Seat> Seats { get; set; } = new List<Seat>();
 }

@@ -18,7 +18,7 @@ public sealed class DbContextCinema : DbContext
   public DbSet<Showtime> Showtimes { get; set; }
   public DbSet<Ticket> Tickets { get; set; }
   public DbSet<Row> Rows { get; set; }
-  public DbSet<Chair> Chairs { get; set; }
+  public DbSet<Seat> Seats { get; set; }
 
   protected override void OnModelCreating(ModelBuilder builder)
   {
@@ -128,14 +128,14 @@ public sealed class DbContextCinema : DbContext
       tb.Property(c => c.RowNumber);
       tb.Property(c => c.TotalCapacity);
       tb.HasOne(c => c.Theater).WithMany(c => c.Rows).HasForeignKey(c => c.TheaterId);
-      tb.HasMany(c => c.Chairs).WithOne(c => c.Row).HasForeignKey(c => c.RowId);
+      tb.HasMany(c => c.Seats).WithOne(c => c.Row).HasForeignKey(c => c.RowId);
     });
-    builder.Entity<Chair>(tb =>
+    builder.Entity<Seat>(tb =>
     {
       tb.HasKey(c => c.Id);
       tb.Property(c => c.Id).UseIdentityColumn();
-      tb.Property(c => c.ChairNumber);
-      tb.HasOne(c => c.Row).WithMany(c => c.Chairs).HasForeignKey(c => c.RowId);
+      tb.Property(c => c.Number);
+      tb.HasOne(c => c.Row).WithMany(c => c.Seats).HasForeignKey(c => c.RowId);
     });
 
   }
