@@ -2,8 +2,8 @@ namespace backend_cine.Models;
 
 public class Showtime : BaseEntity
 {
-  public DateTime DayAndHourStart { get; set; }
-  public DateTime DayAndHourToFinish { get; set; }
+  public DateTime StartDate { get; set; }
+  public DateTime FinishDate { get; set; }
   public long MovieId { get; set; }
   public long LanguageId { get; set; }
   public long FormatId { get; set; }

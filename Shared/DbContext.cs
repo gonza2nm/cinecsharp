@@ -61,10 +61,14 @@ public sealed class DbContextCinema : DbContext
       tb.Property(c => c.Id).UseIdentityColumn();
       tb.Property(c => c.Name).HasMaxLength(50);
       tb.Property(c => c.Description).HasMaxLength(200);
+      tb.Property(c => c.Duration);
+      tb.Property(c => c.Director).HasMaxLength(50);
       tb.HasMany(c => c.Cinemas).WithMany(c => c.Movies);
       tb.HasMany(c => c.Formats).WithMany(c => c.Movies);
       tb.HasMany(c => c.Languages).WithMany(c => c.Movies);
       tb.HasMany(c => c.Showtimes).WithOne(c => c.Movie).HasForeignKey(c => c.MovieId);
+      tb.HasMany(c => c.Genres).WithMany(c => c.Movies);
+
     });
     builder.Entity<Format>(tb =>
     {
@@ -106,7 +110,8 @@ public sealed class DbContextCinema : DbContext
     {
       tb.HasKey(c => c.Id);
       tb.Property(c => c.Id).UseIdentityColumn();
-      tb.Property(c => c.DayAndHourStart).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()");
+      tb.Property(c => c.StartDate).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()");
+      tb.Property(c => c.FinishDate).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()");
       tb.HasOne(c => c.Movie).WithMany(c => c.Showtimes).HasForeignKey(c => c.MovieId);
       tb.HasOne(c => c.Language).WithMany(c => c.Showtimes).HasForeignKey(c => c.LanguageId);
       tb.HasOne(c => c.Format).WithMany(c => c.Showtimes).HasForeignKey(c => c.FormatId);
@@ -136,6 +141,13 @@ public sealed class DbContextCinema : DbContext
       tb.Property(c => c.Id).UseIdentityColumn();
       tb.Property(c => c.Number);
       tb.HasOne(c => c.Row).WithMany(c => c.Seats).HasForeignKey(c => c.RowId);
+    });
+    builder.Entity<Genre>(tb =>
+    {
+      tb.HasKey(c => c.Id);
+      tb.Property(c => c.Id).UseIdentityColumn();
+      tb.Property(c => c.Name).HasMaxLength(20);
+      tb.HasMany(c => c.Movies).WithMany(c => c.Genres);
     });
 
   }
