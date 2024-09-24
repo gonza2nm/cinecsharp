@@ -5,6 +5,7 @@ using backend_cine.Dbcontext;
 using Microsoft.EntityFrameworkCore;
 using backend_cine.DTOs;
 using backend_cine.Responses;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace backend_cine.Controllers;
 [ApiController]
@@ -91,31 +92,31 @@ public class CinemaController : ControllerBase, ICrud<CinemaDTO>
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	[ProducesResponseType(StatusCodes.Status409Conflict)]
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-	public async Task<ActionResult<ResponseOne<CinemaDTO>>> Add([FromBody] CinemaDTO cinemaDTO)
+	public async Task<ActionResult<ResponseOne<CinemaDTO>>> Add([FromBody] CinemaDTO cinema)
 	{
-		if (cinemaDTO is null || cinemaDTO.Name == null || cinemaDTO.Address == null)
+		if (cinema is null || cinema.Name == null || cinema.Address == null)
 		{
 			return StatusCode(StatusCodes.Status400BadRequest, new ResponseOne<CinemaDTO> { message = "Cinema data is null", data = null, error = "Invalid data" });
 		}
 		try
 		{
-			var cinema = new Cinema
+			var cinemaToAdd = new Cinema
 			{
-				Name = cinemaDTO.Name,
-				Address = cinemaDTO.Address
+				Name = cinema.Name,
+				Address = cinema.Address
 			};
-			Cinema? existingCinema = await _context.Cinemas.FirstOrDefaultAsync(c => c.Address == cinemaDTO.Address);
+			Cinema? existingCinema = await _context.Cinemas.FirstOrDefaultAsync(c => c.Address == cinema.Address);
 			if (existingCinema != null)
 			{
 				return StatusCode(StatusCodes.Status409Conflict, new ResponseOne<CinemaDTO> { message = "There is already a cinema in that address", data = null, error = "Conflict in the database" });
 			}
-			await _context.Cinemas.AddAsync(cinema);
+			await _context.Cinemas.AddAsync(cinemaToAdd);
 			await _context.SaveChangesAsync();
 			var cinema2 = new CinemaDTO
 			{
-				Id = cinema.Id,
-				Name = cinema.Name,
-				Address = cinema.Address
+				Id = cinemaToAdd.Id,
+				Name = cinemaToAdd.Name,
+				Address = cinemaToAdd.Address
 			};
 			return StatusCode(StatusCodes.Status201Created, new ResponseOne<CinemaDTO> { message = "Cinema successfully created ", data = cinema2, error = null });
 		}
