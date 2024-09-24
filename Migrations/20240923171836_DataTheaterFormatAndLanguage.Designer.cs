@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend_cine.Dbcontext;
 
@@ -11,9 +12,11 @@ using backend_cine.Dbcontext;
 namespace backend_cine.Migrations
 {
     [DbContext(typeof(DbContextCinema))]
-    partial class DbContextCinemaModelSnapshot : ModelSnapshot
+    [Migration("20240923171836_DataTheaterFormatAndLanguage")]
+    partial class DataTheaterFormatAndLanguage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -386,6 +389,14 @@ namespace backend_cine.Migrations
                     b.HasIndex("CinemaId");
 
                     b.ToTable("Theaters");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            CinemaId = 1L,
+                            TheaterName = "1"
+                        });
                 });
 
             modelBuilder.Entity("backend_cine.Models.Ticket", b =>

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using backend_cine.Dbcontext;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +9,10 @@ builder.Services.AddDbContext<DbContextCinema>(options =>
     options.UseSqlServer(connectionString);
     options.EnableSensitiveDataLogging();
 });
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 var app = builder.Build();

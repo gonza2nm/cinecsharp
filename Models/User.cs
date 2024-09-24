@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace backend_cine.Models;
 
 public class User : BaseEntity
@@ -10,6 +12,8 @@ public class User : BaseEntity
     public required string Password { get; set; }
     public bool IsManager { get; set; }
     public long CinemaId { get; set; }
-    public Cinema Cinema { get; set; } = null!;
     public List<Purchase> Purchases { get; set; } = new List<Purchase>();
+
+    [JsonIgnore]
+    public Cinema Cinema { get; set; } = null!;
 }

@@ -24,8 +24,6 @@ public sealed class DbContextCinema : DbContext
   {
     builder.Entity<Cinema>(tb =>
     {
-      tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn();
       tb.Property(c => c.Name).HasColumnType("varchar(50)");
       tb.Property(c => c.Address).HasColumnType("varchar(80)");
       tb.HasIndex(c => c.Address).IsUnique();
@@ -40,8 +38,6 @@ public sealed class DbContextCinema : DbContext
     });
     builder.Entity<User>(tb =>
     {
-      tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn();
       tb.Property(c => c.Name).HasMaxLength(30);
       tb.Property(c => c.Surname).HasMaxLength(30);
       tb.HasIndex(c => c.Dni).IsUnique();
@@ -57,8 +53,6 @@ public sealed class DbContextCinema : DbContext
     });
     builder.Entity<Movie>(tb =>
     {
-      tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn();
       tb.Property(c => c.Name).HasMaxLength(50);
       tb.Property(c => c.Description).HasMaxLength(200);
       tb.Property(c => c.Duration);
@@ -68,30 +62,33 @@ public sealed class DbContextCinema : DbContext
       tb.HasMany(c => c.Languages).WithMany(c => c.Movies);
       tb.HasMany(c => c.Showtimes).WithOne(c => c.Movie).HasForeignKey(c => c.MovieId);
       tb.HasMany(c => c.Genres).WithMany(c => c.Movies);
-
     });
     builder.Entity<Format>(tb =>
     {
-      tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn();
       tb.Property(c => c.Name).HasMaxLength(40);
       tb.HasIndex(c => c.Name).IsUnique();
       tb.HasMany(c => c.Movies).WithMany(c => c.Formats);
       tb.HasMany(c => c.Showtimes).WithOne(c => c.Format).HasForeignKey(c => c.FormatId);
+      tb.HasData(
+        new Format { Id = 1, Name = "2D" },
+        new Format { Id = 2, Name = "3D" },
+        new Format { Id = 3, Name = "4D" }
+      );
     });
     builder.Entity<Language>(tb =>
     {
-      tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn();
       tb.Property(c => c.Name).HasMaxLength(40);
       tb.HasIndex(c => c.Name).IsUnique();
       tb.HasMany(c => c.Movies).WithMany(c => c.Languages);
       tb.HasMany(c => c.Showtimes).WithOne(c => c.Language).HasForeignKey(c => c.LanguageId);
+      tb.HasData(
+        new Language { Id = 1, Name = "Spanish" },
+        new Language { Id = 2, Name = "English" },
+        new Language { Id = 3, Name = "Chinese" }
+      );
     });
     builder.Entity<Theater>(tb =>
     {
-      tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn();
       tb.Property(c => c.TheaterName).HasMaxLength(5);
       tb.HasMany(c => c.Showtimes).WithOne(c => c.Theater).HasForeignKey(c => c.TheaterId);
       tb.HasOne(c => c.Cinema).WithMany(c => c.Theaters).HasForeignKey(c => c.CinemaId);
@@ -99,8 +96,6 @@ public sealed class DbContextCinema : DbContext
     });
     builder.Entity<Purchase>(tb =>
     {
-      tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn();
       tb.Property(c => c.Total).HasPrecision(14, 2);
       tb.Property(c => c.PurchaseDate).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()");
       tb.HasOne(c => c.User).WithMany(c => c.Purchases).HasForeignKey(c => c.UserId);
@@ -108,8 +103,6 @@ public sealed class DbContextCinema : DbContext
     });
     builder.Entity<Showtime>(tb =>
     {
-      tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn();
       tb.Property(c => c.StartDate).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()");
       tb.Property(c => c.FinishDate).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()");
       tb.HasOne(c => c.Movie).WithMany(c => c.Showtimes).HasForeignKey(c => c.MovieId);
@@ -120,16 +113,12 @@ public sealed class DbContextCinema : DbContext
     });
     builder.Entity<Ticket>(tb =>
     {
-      tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn();
       tb.Property(c => c.TicketNumber);
       tb.HasOne(c => c.Showtime).WithMany(c => c.Tickets).HasForeignKey(c => c.ShowtimeId).OnDelete(DeleteBehavior.Restrict);
       tb.HasOne(c => c.Purchase).WithMany(c => c.Tickets).HasForeignKey(c => c.PurchaseId).OnDelete(DeleteBehavior.Restrict);
     });
     builder.Entity<Row>(tb =>
     {
-      tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn();
       tb.Property(c => c.RowNumber);
       tb.Property(c => c.TotalCapacity);
       tb.HasOne(c => c.Theater).WithMany(c => c.Rows).HasForeignKey(c => c.TheaterId);
@@ -137,15 +126,11 @@ public sealed class DbContextCinema : DbContext
     });
     builder.Entity<Seat>(tb =>
     {
-      tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn();
       tb.Property(c => c.Number);
       tb.HasOne(c => c.Row).WithMany(c => c.Seats).HasForeignKey(c => c.RowId);
     });
     builder.Entity<Genre>(tb =>
     {
-      tb.HasKey(c => c.Id);
-      tb.Property(c => c.Id).UseIdentityColumn();
       tb.Property(c => c.Name).HasMaxLength(20);
       tb.HasMany(c => c.Movies).WithMany(c => c.Genres);
     });

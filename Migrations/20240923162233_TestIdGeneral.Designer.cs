@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend_cine.Dbcontext;
 
@@ -11,9 +12,11 @@ using backend_cine.Dbcontext;
 namespace backend_cine.Migrations
 {
     [DbContext(typeof(DbContextCinema))]
-    partial class DbContextCinemaModelSnapshot : ModelSnapshot
+    [Migration("20240923162233_TestIdGeneral")]
+    partial class TestIdGeneral
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -145,23 +148,6 @@ namespace backend_cine.Migrations
                         .IsUnique();
 
                     b.ToTable("Formats");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            Name = "2D"
-                        },
-                        new
-                        {
-                            Id = 2L,
-                            Name = "3D"
-                        },
-                        new
-                        {
-                            Id = 3L,
-                            Name = "4D"
-                        });
                 });
 
             modelBuilder.Entity("backend_cine.Models.Genre", b =>
@@ -201,23 +187,6 @@ namespace backend_cine.Migrations
                         .IsUnique();
 
                     b.ToTable("Languages");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1L,
-                            Name = "Spanish"
-                        },
-                        new
-                        {
-                            Id = 2L,
-                            Name = "English"
-                        },
-                        new
-                        {
-                            Id = 3L,
-                            Name = "Chinese"
-                        });
                 });
 
             modelBuilder.Entity("backend_cine.Models.Movie", b =>
