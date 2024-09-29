@@ -1,4 +1,4 @@
-namespace backend_cine.Responses;
+namespace backend_cine.Models;
 
 public class ResponseList<T>
 {

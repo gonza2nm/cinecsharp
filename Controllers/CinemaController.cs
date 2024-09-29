@@ -4,9 +4,6 @@ using backend_cine.Interfaces;
 using backend_cine.Dbcontext;
 using Microsoft.EntityFrameworkCore;
 using backend_cine.DTOs;
-using backend_cine.Responses;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Routing.Constraints;
 using AutoMapper;
 
 namespace backend_cine.Controllers;

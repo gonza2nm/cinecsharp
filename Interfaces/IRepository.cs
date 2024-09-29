@@ -1,5 +1,5 @@
+using backend_cine.Models;
 using Microsoft.AspNetCore.Mvc;
-using backend_cine.Responses;
 namespace backend_cine.Interfaces;
 
 public interface IRepository<T>
