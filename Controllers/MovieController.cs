@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+/*using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using backend_cine.Models;
 using backend_cine.Dbcontext;
@@ -72,4 +72,4 @@ public class MovieController : ControllerBase, ICrud<Movie>
   }
 
 
-}
+}*/

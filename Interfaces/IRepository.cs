@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using backend_cine.Responses;
 namespace backend_cine.Interfaces;
 
-public interface ICrud<T>
+public interface IRepository<T>
 {
 	public Task<ActionResult<ResponseList<T>>> FindAll();
 	public Task<ActionResult<ResponseOne<T>>> FindOne(long id);
