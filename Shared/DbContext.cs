@@ -134,6 +134,15 @@ public sealed class DbContextCinema : DbContext
     {
       tb.Property(c => c.Name).HasMaxLength(20);
       tb.HasMany(c => c.Movies).WithMany(c => c.Genres);
+      tb.HasData(
+        new Genre { Id = 1, Name = "Terror" },
+        new Genre { Id = 2, Name = "Comedia" },
+        new Genre { Id = 3, Name = "Accion" },
+        new Genre { Id = 4, Name = "Drama" },
+        new Genre { Id = 5, Name = "Ciencia Ficcion" },
+        new Genre { Id = 6, Name = "Documental" },
+        new Genre { Id = 7, Name = "Suspenso" }
+      );
     });
 
   }
