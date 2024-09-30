@@ -19,6 +19,7 @@ public sealed class DbContextCinema : DbContext
   public DbSet<Ticket> Tickets { get; set; }
   public DbSet<Row> Rows { get; set; }
   public DbSet<Seat> Seats { get; set; }
+  public DbSet<Genre> Genres { get; set; }
 
   protected override void OnModelCreating(ModelBuilder builder)
   {

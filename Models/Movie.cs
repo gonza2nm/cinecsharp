@@ -6,9 +6,9 @@ public class Movie : BaseEntity
   public string? Description { get; set; }
   public required int Duration { get; set; }
   public required string Director { get; set; }
-  public List<Cinema> Cinemas { get; } = new List<Cinema>();
-  public List<Format> Formats { get; } = new List<Format>();
-  public List<Language> Languages { get; } = new List<Language>();
-  public List<Showtime> Showtimes = new List<Showtime>();
-  public List<Genre> Genres { get; } = new List<Genre>();
+  public List<Cinema> Cinemas { get; set; } = new List<Cinema>();
+  public List<Format> Formats { get; set; } = new List<Format>();
+  public List<Language> Languages { get; set; } = new List<Language>();
+  public List<Showtime> Showtimes { get; set; } = new List<Showtime>();
+  public List<Genre> Genres { get; set; } = new List<Genre>();
 }

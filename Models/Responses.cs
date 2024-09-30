@@ -1,3 +1,5 @@
+using backend_cine.DTOs;
+
 namespace backend_cine.Models;
 
 public class ResponseList<T>
@@ -14,6 +16,7 @@ public class ResponseList<T>
     Data = data;
     Error = error;
   }
+
 }
 
 public class ResponseOne<T>

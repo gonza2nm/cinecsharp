@@ -10,7 +10,7 @@ namespace backend_cine.Controllers;
 [ApiController]
 [Produces("application/json")]
 [Route("api/cinemas")]
-public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : ControllerBase, IRepository<CinemaDTO>
+public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : ControllerBase, IRepository<CinemaDTO, CinemaRequestDTO>
 {
 
 	private readonly DbContextCinema _dbcontext = dbcontext;
@@ -89,7 +89,7 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 	[ProducesResponseType(StatusCodes.Status400BadRequest)]
 	[ProducesResponseType(StatusCodes.Status409Conflict)]
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-	public async Task<ActionResult<ResponseOne<CinemaDTO>>> Add([FromBody] CinemaDTO cinema)
+	public async Task<ActionResult<ResponseOne<CinemaDTO>>> Add([FromBody] CinemaRequestDTO cinema)
 	{
 		var res = new ResponseOne<CinemaDTO> { Status = "", Message = "", Data = null, Error = null };
 		if (cinema is null || cinema.Name == null || cinema.Address == null)
@@ -130,7 +130,7 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
 	[ProducesResponseType(StatusCodes.Status409Conflict)]
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-	public async Task<ActionResult<ResponseOne<CinemaDTO>>> Update(long id, CinemaDTO cinemaBody)
+	public async Task<ActionResult<ResponseOne<CinemaDTO>>> Update(long id, CinemaRequestDTO cinemaBody)
 	{
 		var res = new ResponseOne<CinemaDTO> { Status = "", Message = "", Data = null, Error = null };
 		if (id != cinemaBody.Id)
