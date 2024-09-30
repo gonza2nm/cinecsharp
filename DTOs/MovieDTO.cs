@@ -4,7 +4,7 @@ namespace backend_cine.DTOs;
 
 public class MovieDTO
 {
-  public int Id { get; set; }
+  public long Id { get; set; }
   public required string Name { get; set; }
   public string? Description { get; set; }
   public required int Duration { get; set; }
@@ -16,7 +16,7 @@ public class MovieDTO
 
 public class MovieRequestDTO
 {
-  public int Id { get; set; }
+  public long Id { get; set; }
   public required string Name { get; set; }
   public string? Description { get; set; }
   public required int Duration { get; set; }

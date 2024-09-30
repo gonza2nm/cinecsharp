@@ -12,14 +12,11 @@ namespace backend_cine.Controllers;
 [Route("api/cinemas")]
 public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : ControllerBase, IRepository<CinemaDTO, CinemaRequestDTO>
 {
-
 	private readonly DbContextCinema _dbcontext = dbcontext;
 	private readonly IMapper _mapper = mapper;
 
 	//GET ALL
 	[HttpGet]
-	[ProducesResponseType(StatusCodes.Status200OK)]
-	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 	public async Task<ActionResult<ResponseList<CinemaDTO>>> FindAll()
 	{
 		var res = new ResponseList<CinemaDTO> { Status = "", Message = "", Data = [], Error = null };
@@ -47,10 +44,6 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 	}
 	//GET ONE
 	[HttpGet("{id}")]
-	[ProducesResponseType(StatusCodes.Status200OK)]
-	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	[ProducesResponseType(StatusCodes.Status404NotFound)]
-	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 	public async Task<ActionResult<ResponseOne<CinemaDTO>>> FindOne(long id)
 	{
 		var res = new ResponseOne<CinemaDTO> { Status = "", Message = "", Data = null, Error = null };
@@ -85,10 +78,6 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 
 	//ADD
 	[HttpPost]
-	[ProducesResponseType(StatusCodes.Status201Created)]
-	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	[ProducesResponseType(StatusCodes.Status409Conflict)]
-	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 	public async Task<ActionResult<ResponseOne<CinemaDTO>>> Add([FromBody] CinemaRequestDTO cinema)
 	{
 		var res = new ResponseOne<CinemaDTO> { Status = "", Message = "", Data = null, Error = null };
@@ -125,11 +114,6 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 	}
 
 	[HttpPut("{id}")]
-	[ProducesResponseType(StatusCodes.Status200OK)]
-	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	[ProducesResponseType(StatusCodes.Status404NotFound)]
-	[ProducesResponseType(StatusCodes.Status409Conflict)]
-	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 	public async Task<ActionResult<ResponseOne<CinemaDTO>>> Update(long id, CinemaRequestDTO cinemaBody)
 	{
 		var res = new ResponseOne<CinemaDTO> { Status = "", Message = "", Data = null, Error = null };
@@ -172,10 +156,6 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 	}
 
 	[HttpDelete("{id}")]
-	[ProducesResponseType(StatusCodes.Status200OK)]
-	[ProducesResponseType(StatusCodes.Status400BadRequest)]
-	[ProducesResponseType(StatusCodes.Status404NotFound)]
-	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 	public async Task<ActionResult<ResponseOne<CinemaDTO>>> Delete(long id)
 	{
 		var res = new ResponseOne<CinemaDTO> { Status = "", Message = "", Data = null, Error = null };
