@@ -9,7 +9,7 @@ public class TheaterProfile : Profile
   public TheaterProfile()
   {
     CreateMap<Theater, TheaterDTO>().ReverseMap();
-    CreateMap<TheaterDTO, TheaterRequestDTO>().ReverseMap();
     CreateMap<Theater, TheaterRequestDTO>().ReverseMap();
+    CreateMap<TheaterDTO, TheaterRequestDTO>().ReverseMap();
   }
 }
