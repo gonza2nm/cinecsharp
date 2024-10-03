@@ -9,7 +9,6 @@ using backend_cine.DTOs;
 namespace backend_cine.Controllers;
 
 [ApiController]
-[Produces("application/json")]
 [Route("api/movies")]
 public class MovieController(DbContextCinema dbContext, IMapper mapper) : ControllerBase, IRepository<MovieDTO, MovieRequestDTO>
 {
@@ -23,12 +22,8 @@ public class MovieController(DbContextCinema dbContext, IMapper mapper) : Contro
     var res = new ResponseList<MovieDTO> { Status = "", Message = "", Data = [], Error = null };
     try
     {
-      var movies = new List<MovieDTO>();
       var moviesDB = await _dbcontext.Movies.ToListAsync();
-      foreach (var item in moviesDB)
-      {
-        movies.Add(_mapper.Map<MovieDTO>(item));
-      }
+      var movies = _mapper.Map<List<MovieDTO>>(moviesDB);
       res.UpdateValues("200", "Found movies", movies);
       return StatusCode(StatusCodes.Status200OK, res);
     }
@@ -118,6 +113,11 @@ public class MovieController(DbContextCinema dbContext, IMapper mapper) : Contro
   public async Task<ActionResult<ResponseOne<MovieDTO>>> Update(long id, MovieRequestDTO movieBody)
   {
     var res = new ResponseOne<MovieRequestDTO> { Status = "", Message = "", Data = null, Error = null };
+    if (!ModelState.IsValid || id <= 0)
+    {
+      res.UpdateValues("400", "Incorrect or empty data", null, "Bad Request");
+      return StatusCode(StatusCodes.Status400BadRequest, res);
+    }
     if (id != movieBody.Id)
     {
       res.UpdateValues("400", "The id of the URI is diferent from the id in json object", null, "Bad Request");
@@ -234,7 +234,7 @@ public class MovieController(DbContextCinema dbContext, IMapper mapper) : Contro
       Movie? deleteMovie = await _dbcontext.Movies.FirstOrDefaultAsync(c => c.Id == id);
       if (deleteMovie is null)
       {
-        res.UpdateValues("400", $"Movie with id: {id} not found", null, "404 Not found");
+        res.UpdateValues("404", $"Movie with id: {id} not found", null, "404 Not found");
         return StatusCode(StatusCodes.Status404NotFound, res);
       }
       _dbcontext.Movies.Remove(deleteMovie);

@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 using backend_cine.Dbcontext;
-using backend_cine.mapping;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,7 +8,8 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddDbContext<DbContextCinema>(options =>
 {
-    options.UseSqlServer(connectionString);
+    //mas de 40 solicitudes hacen que pierda performance
+    options.UseSqlServer(connectionString, o => o.MinBatchSize(1));
     options.EnableSensitiveDataLogging();
 });
 builder.Services.AddControllers().AddJsonOptions(options =>

@@ -90,7 +90,7 @@ public sealed class DbContextCinema : DbContext
     });
     builder.Entity<Theater>(tb =>
     {
-      tb.Property(c => c.TheaterName).HasMaxLength(5);
+      tb.Property(c => c.TheaterName).HasMaxLength(20);
       tb.HasMany(c => c.Showtimes).WithOne(c => c.Theater).HasForeignKey(c => c.TheaterId);
       tb.HasOne(c => c.Cinema).WithMany(c => c.Theaters).HasForeignKey(c => c.CinemaId);
       tb.HasMany(c => c.Rows).WithOne(c => c.Theater).HasForeignKey(c => c.TheaterId);

@@ -1,0 +1,1 @@
+El Limite de filas por sala es de 40, cualquier modificacion tocar el program.cs

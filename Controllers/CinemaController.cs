@@ -8,7 +8,6 @@ using AutoMapper;
 
 namespace backend_cine.Controllers;
 [ApiController]
-[Produces("application/json")]
 [Route("api/cinemas")]
 public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : ControllerBase, IRepository<CinemaDTO, CinemaRequestDTO>
 {
@@ -22,13 +21,9 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 		var res = new ResponseList<CinemaDTO> { Status = "", Message = "", Data = [], Error = null };
 		try
 		{
-			var cinemasDTO = new List<CinemaDTO>();
 			var cinemasDB = await _dbcontext.Cinemas.ToListAsync();
-			foreach (var item in cinemasDB)
-			{
-				cinemasDTO.Add(_mapper.Map<CinemaDTO>(item));
-			}
-			res.UpdateValues("200", "Found cinemas", cinemasDTO);
+			var cinemas = _mapper.Map<List<CinemaDTO>>(cinemasDB);
+			res.UpdateValues("200", "Found cinemas", cinemas);
 			return StatusCode(StatusCodes.Status200OK, res);
 		}
 		catch (DbUpdateException dbEx)
@@ -169,7 +164,7 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 			Cinema? deleteCinema = await _dbcontext.Cinemas.FirstOrDefaultAsync(c => c.Id == id);
 			if (deleteCinema is null)
 			{
-				res.UpdateValues("400", $"Cinema with id: {id} not found", null, "404 Not found");
+				res.UpdateValues("404", $"Cinema with id: {id} not found", null, "404 Not found");
 				return StatusCode(StatusCodes.Status404NotFound, res);
 			}
 			_dbcontext.Cinemas.Remove(deleteCinema);

@@ -2,7 +2,7 @@ using AutoMapper;
 using backend_cine.DTOs;
 using backend_cine.Models;
 
-namespace backend_cine.mapping;
+namespace backend_cine.Mapper;
 
 public class CinemaProfile : Profile
 {

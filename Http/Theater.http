@@ -1,0 +1,37 @@
+@theater_url = http://localhost:5212/api/theaters
+@theater_id = 49
+
+# Get theater
+GET {{theater_url}} 
+Accept: application/json
+
+### GET theater By id
+GET {{theater_url}}/{{theater_id}}
+Accept: application/json
+
+### Add theater
+POST {{theater_url}}
+Content-Type: application/json
+
+{
+  "TheaterName":"test2",
+  "CinemaId":2,
+  "NumRows":20,
+  "MaxSeats":200
+}
+
+### Update Theater
+PUT {{theater_url}}/{{theater_id}}
+Content-Type: application/json
+
+{
+  "Id": 49,
+  "TheaterName":"test",
+  "CinemaId":2,
+  "NumRows":20,
+  "MaxSeats":217
+}
+
+### Delete Theater
+DELETE  {{theater_url}}/{{theater_id}}
+Accept: application/json
