@@ -167,6 +167,7 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 			res.UpdateValues("400", "Invalid Cinema ID", null, "Bad Request");
 			return StatusCode(StatusCodes.Status400BadRequest, res);
 		}
+		using var transaction = await _dbcontext.Database.BeginTransactionAsync();
 		try
 		{
 			Cinema? deleteCinema = await _dbcontext.Cinemas.FirstOrDefaultAsync(c => c.Id == id);
@@ -177,16 +178,19 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 			}
 			_dbcontext.Cinemas.Remove(deleteCinema);
 			await _dbcontext.SaveChangesAsync();
+			await transaction.CommitAsync();
 			res.UpdateValues("200", "Cinema deleted successfully", null);
 			return StatusCode(StatusCodes.Status200OK, res);
 		}
 		catch (DbUpdateException dbEx)
 		{
+			await transaction.RollbackAsync();
 			res.UpdateValues("500", "Database error occurred.", null, dbEx.Message);
 			return StatusCode(StatusCodes.Status500InternalServerError, res);
 		}
 		catch (Exception ex)
 		{
+			await transaction.RollbackAsync();
 			res.UpdateValues("500", "An error occurred while processing your request.", null, ex.Message);
 			return StatusCode(StatusCodes.Status500InternalServerError, res);
 		}
