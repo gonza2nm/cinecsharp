@@ -81,6 +81,7 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 			res.UpdateValues("400", "Incorrect or empty data", null, "Invalid data");
 			return StatusCode(StatusCodes.Status400BadRequest, res);
 		}
+		using var transaction = await _dbcontext.Database.BeginTransactionAsync();
 		try
 		{
 			var cinemaToAdd = _mapper.Map<Cinema>(cinema);
@@ -92,17 +93,20 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 			}
 			await _dbcontext.Cinemas.AddAsync(cinemaToAdd);
 			await _dbcontext.SaveChangesAsync();
+			await transaction.CommitAsync();
 			var cinemaDTO = _mapper.Map<CinemaDTO>(cinemaToAdd);
 			res.UpdateValues("201", "Cinema successfully created", cinemaDTO);
 			return StatusCode(StatusCodes.Status201Created, res);
 		}
 		catch (DbUpdateException dbEx)
 		{
+			await transaction.RollbackAsync();
 			res.UpdateValues("500", "Database error occurred.", null, dbEx.Message);
 			return StatusCode(StatusCodes.Status500InternalServerError, res);
 		}
 		catch (Exception ex)
 		{
+			await transaction.RollbackAsync();
 			res.UpdateValues("500", "An error occurred while processing your request.", null, ex.Message);
 			return StatusCode(StatusCodes.Status500InternalServerError, res);
 		}
@@ -117,6 +121,7 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 			res.UpdateValues("400", "The id of the URI is diferent from the id in json object", null, "Bad Request");
 			return StatusCode(StatusCodes.Status400BadRequest, res);
 		}
+		using var transaction = await _dbcontext.Database.BeginTransactionAsync();
 		try
 		{
 			Cinema? updateCinema = await _dbcontext.Cinemas.FirstOrDefaultAsync(c => c.Id == id);
@@ -135,16 +140,19 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 			updateCinema.Address = cinemaBody.Address;
 			_dbcontext.Cinemas.Update(updateCinema);
 			await _dbcontext.SaveChangesAsync();
+			await transaction.CommitAsync();
 			res.UpdateValues("200", "Cinema updated successfully", null);
 			return StatusCode(StatusCodes.Status200OK, res);
 		}
 		catch (DbUpdateException dbEx)
 		{
+			await transaction.RollbackAsync();
 			res.UpdateValues("500", "Database error occurred.", null, dbEx.Message);
 			return StatusCode(StatusCodes.Status500InternalServerError, res);
 		}
 		catch (Exception ex)
 		{
+			await transaction.RollbackAsync();
 			res.UpdateValues("500", "An error occurred while processing your request.", null, ex.Message);
 			return StatusCode(StatusCodes.Status500InternalServerError, res);
 		}
