@@ -6,7 +6,6 @@ using backend_cine.Interfaces;
 using backend_cine.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
 
 namespace backend_cine.Controllers;
 
@@ -44,6 +43,11 @@ public class TheaterController(DbContextCinema dbcontext, IMapper mapper) : Cont
   public async Task<ActionResult<ResponseOne<TheaterDTO>>> FindOne(long id)
   {
     var res = new ResponseOne<TheaterDTO>() { Status = "", Message = "", Data = null, Error = null };
+    if (id <= 0)
+    {
+      res.UpdateValues("400", "Invalid Theater ID", null, "Bad Request");
+      return StatusCode(StatusCodes.Status400BadRequest, res);
+    }
     try
     {
       var theaterDB = await _dbContext.Theaters.Include(t => t.Rows).ThenInclude(r => r.Seats).FirstOrDefaultAsync(t => t.Id == id);

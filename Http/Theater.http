@@ -16,8 +16,8 @@ Content-Type: application/json
 {
   "TheaterName":"test2",
   "CinemaId":2,
-  "NumRows":20,
-  "MaxSeats":200
+  "NumRows":12,
+  "MaxSeats":120
 }
 
 ### Update Theater

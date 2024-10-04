@@ -11,9 +11,9 @@ public class User : BaseEntity
     public DateTime Created { get; set; }
     public required string Password { get; set; }
     public bool IsManager { get; set; }
-    public long CinemaId { get; set; }
+    public long? CinemaId { get; set; }
     public List<Purchase> Purchases { get; set; } = new List<Purchase>();
 
     [JsonIgnore]
-    public Cinema Cinema { get; set; } = null!;
+    public Cinema? Cinema { get; set; } = null!;
 }

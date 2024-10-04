@@ -1,0 +1,16 @@
+@user_url = http://localhost:5212/api/users
+@user_id = 1
+
+# Add User
+POST {{user_url}}
+Content-Type: application/json
+
+{
+  "dni": "44523501",
+  "name": "Gonzalo",
+  "surname": "Mansilla",
+  "email": "gonzalo2nm@gmail.com",
+  "password": "testGonza123",
+  "cinemaId": 1,
+  "isManager": false
+}

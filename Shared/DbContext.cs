@@ -49,7 +49,7 @@ public sealed class DbContextCinema : DbContext
       tb.Property(c => c.Created).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()");
       tb.Property(c => c.IsManager).HasDefaultValue(false);
       tb.Property(c => c.CinemaId);
-      tb.HasOne(c => c.Cinema).WithMany(c => c.Users).HasForeignKey(c => c.CinemaId).IsRequired();
+      tb.HasOne(c => c.Cinema).WithMany(c => c.Users).HasForeignKey(c => c.CinemaId);
       tb.HasMany(c => c.Purchases).WithOne(c => c.User).HasForeignKey(c => c.UserId);
     });
     builder.Entity<Movie>(tb =>

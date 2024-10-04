@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using backend_cine.Dbcontext;
 
@@ -11,9 +12,11 @@ using backend_cine.Dbcontext;
 namespace backend_cine.Migrations
 {
     [DbContext(typeof(DbContextCinema))]
-    partial class DbContextCinemaModelSnapshot : ModelSnapshot
+    [Migration("20241003143017_NullCinemaIdInUser")]
+    partial class NullCinemaIdInUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -460,6 +463,7 @@ namespace backend_cine.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
                     b.Property<long?>("CinemaId")
+                        .IsRequired()
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("Created")
@@ -671,7 +675,9 @@ namespace backend_cine.Migrations
                 {
                     b.HasOne("backend_cine.Models.Cinema", "Cinema")
                         .WithMany("Users")
-                        .HasForeignKey("CinemaId");
+                        .HasForeignKey("CinemaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Cinema");
                 });
