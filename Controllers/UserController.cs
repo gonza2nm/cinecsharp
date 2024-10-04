@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using AutoMapper;
 using backend_cine.Dbcontext;
 using backend_cine.DTOs;
@@ -119,6 +120,7 @@ public class UserController(DbContextCinema dbContext, IMapper mapper) : Control
       return StatusCode(StatusCodes.Status500InternalServerError, res);
     }
   }
+
   [HttpPut("{id}")]
   public async Task<ActionResult<ResponseOne<UserDTO>>> Update(long id, UserRequestDTO userBody)
   {
@@ -136,13 +138,28 @@ public class UserController(DbContextCinema dbContext, IMapper mapper) : Control
     using var transaction = await _dbContext.Database.BeginTransactionAsync();
     try
     {
+      var userEmail = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == userBody.Email);
+      var userDNI = await _dbContext.Users.FirstOrDefaultAsync(u => u.Dni == userBody.Dni);
+      if (userEmail is not null || userDNI is not null)
+      {
+        if (userEmail is not null && userEmail.Id != userBody.Id)
+        {
+          res.UpdateValues("409", "The email already exist in other user", null, "Conflict");
+          return StatusCode(StatusCodes.Status409Conflict, res);
+        }
+        if (userDNI is not null && userDNI.Id != userBody.Id)
+        {
+          res.UpdateValues("409", "The dni already exist in other user", null, "Conflict");
+          return StatusCode(StatusCodes.Status409Conflict, res);
+        }
+      }
       var userDB = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
       if (userDB is null)
       {
         res.UpdateValues("404", $"User with id: {id} not found", null, "Not found");
         return StatusCode(StatusCodes.Status404NotFound, res);
       }
-      userDB = _mapper.Map<User>(userBody);
+      _mapper.Map(userBody, userDB);
       userDB.Cinema = null;
       userDB.CinemaId = null;
       userDB.IsManager = false;
