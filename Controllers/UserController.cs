@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using AutoMapper;
 using backend_cine.Dbcontext;
 using backend_cine.DTOs;

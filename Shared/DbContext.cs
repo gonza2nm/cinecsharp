@@ -46,7 +46,7 @@ public sealed class DbContextCinema : DbContext
       tb.Property(c => c.Email).HasMaxLength(50);
       tb.HasIndex(c => c.Email).IsUnique();
       tb.Property(c => c.Password).HasMaxLength(16);
-      tb.Property(c => c.Created).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()");
+      tb.Property(c => c.Created).HasColumnType("DATETIME2(0)").HasDefaultValueSql("SYSDATETIME()");
       tb.Property(c => c.IsManager).HasDefaultValue(false);
       tb.Property(c => c.CinemaId);
       tb.HasOne(c => c.Cinema).WithMany(c => c.Users).HasForeignKey(c => c.CinemaId);
@@ -98,14 +98,14 @@ public sealed class DbContextCinema : DbContext
     builder.Entity<Purchase>(tb =>
     {
       tb.Property(c => c.Total).HasPrecision(14, 2);
-      tb.Property(c => c.PurchaseDate).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()");
+      tb.Property(c => c.PurchaseDate).HasColumnType("DATETIME2(0)").HasDefaultValueSql("SYSDATETIME()");
       tb.HasOne(c => c.User).WithMany(c => c.Purchases).HasForeignKey(c => c.UserId);
       tb.HasMany(c => c.Tickets).WithOne(c => c.Purchase).HasForeignKey(c => c.PurchaseId);
     });
     builder.Entity<Showtime>(tb =>
     {
-      tb.Property(c => c.StartDate).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()");
-      tb.Property(c => c.FinishDate).HasColumnType("DATETIME2(3)").HasDefaultValueSql("SYSDATETIME()");
+      tb.Property(c => c.StartDate).HasColumnType("DATETIME2(0)").HasDefaultValueSql("SYSDATETIME()");
+      tb.Property(c => c.FinishDate).HasColumnType("DATETIME2(0)").HasDefaultValueSql("SYSDATETIME()");
       tb.HasOne(c => c.Movie).WithMany(c => c.Showtimes).HasForeignKey(c => c.MovieId);
       tb.HasOne(c => c.Language).WithMany(c => c.Showtimes).HasForeignKey(c => c.LanguageId);
       tb.HasOne(c => c.Format).WithMany(c => c.Showtimes).HasForeignKey(c => c.FormatId);
