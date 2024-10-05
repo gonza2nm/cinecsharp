@@ -4,7 +4,7 @@ using backend_cine.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-string? connectionString = builder.Configuration.GetConnectionString("SqlServerConnection");
+var connectionString = builder.Configuration.GetConnectionString("SqlServerConnection");
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddScoped<ShowtimeService>();
@@ -12,8 +12,6 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<TheaterService>();
 builder.Services.AddScoped<MovieService>();
 builder.Services.AddScoped<CinemaService>();
-
-
 
 builder.Services.AddDbContext<DbContextCinema>(options =>
 {
