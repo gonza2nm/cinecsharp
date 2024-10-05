@@ -144,9 +144,7 @@ public class MovieController(DbContextCinema dbContext, IMapper mapper) : Contro
       var existingFormats = updateMovie.Formats.ToList();
       var newFormatIds = movieBody.FormatsIds;
       // elimino formatos que no estan en la lista
-      var formatsToRemove = existingFormats
-          .Where(f => !newFormatIds.Contains(f.Id))
-          .ToList();
+      var formatsToRemove = existingFormats.Where(f => !newFormatIds.Contains(f.Id)).ToList();
       foreach (var format in formatsToRemove)
       {
         updateMovie.Formats.Remove(format);
