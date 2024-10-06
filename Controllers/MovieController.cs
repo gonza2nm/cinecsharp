@@ -5,15 +5,18 @@ using backend_cine.Dbcontext;
 using backend_cine.Interfaces;
 using AutoMapper;
 using backend_cine.DTOs;
+using System.Runtime.CompilerServices;
+using backend_cine.Services;
 
 namespace backend_cine.Controllers;
 
 [ApiController]
 [Route("api/movies")]
-public class MovieController(DbContextCinema dbContext, IMapper mapper) : ControllerBase, IRepository<MovieDTO, MovieRequestDTO>
+public class MovieController(DbContextCinema dbContext, IMapper mapper, MovieService service) : ControllerBase, IRepository<MovieDTO, MovieRequestDTO>
 {
   private readonly DbContextCinema _dbcontext = dbContext;
   private readonly IMapper _mapper = mapper;
+  private readonly MovieService _service = service;
 
   //GET ALL
   [HttpGet]
@@ -22,7 +25,7 @@ public class MovieController(DbContextCinema dbContext, IMapper mapper) : Contro
     var res = new ResponseList<MovieDTO> { Status = "", Message = "", Data = [], Error = null };
     try
     {
-      var moviesDB = await _dbcontext.Movies.ToListAsync();
+      var moviesDB = await _service.GetMoviesAsync();
       var movies = _mapper.Map<List<MovieDTO>>(moviesDB);
       res.UpdateValues("200", "Found movies", movies);
       return StatusCode(StatusCodes.Status200OK, res);
@@ -45,10 +48,7 @@ public class MovieController(DbContextCinema dbContext, IMapper mapper) : Contro
     }
     try
     {
-      Movie? movieDB = await _dbcontext.Movies
-        .Include(m => m.Languages)
-        .Include(m => m.Formats)
-        .Include(m => m.Genres).FirstOrDefaultAsync(m => m.Id == id);
+      Movie? movieDB = await _service.GetMovieByIdAsync(id, "details");
       if (movieDB is null)
       {
         res.UpdateValues("404", $"Movie with id: {id} not found", null, "Not Found");
@@ -79,9 +79,9 @@ public class MovieController(DbContextCinema dbContext, IMapper mapper) : Contro
     try
     {
       var movieToAdd = _mapper.Map<Movie>(movieBody);
-      movieToAdd.Languages = await _dbcontext.Languages.Where(l => movieBody.LanguagesIds.Contains(l.Id)).ToListAsync();
-      movieToAdd.Formats = await _dbcontext.Formats.Where(f => movieBody.FormatsIds.Contains(f.Id)).ToListAsync();
-      movieToAdd.Genres = await _dbcontext.Genres.Where(g => movieBody.GenresIds.Contains(g.Id)).ToListAsync();
+      movieToAdd.Languages = await _service.SearchLanguagesByIdsAsync(movieBody.LanguagesIds);
+      movieToAdd.Formats = await _service.SearchFormatsByIdsAsync(movieBody.FormatsIds);
+      movieToAdd.Genres = await _service.SearchGenresByIdsAsync(movieBody.GenresIds);
       await _dbcontext.Movies.AddAsync(movieToAdd);
       await _dbcontext.SaveChangesAsync();
       await transaction.CommitAsync();
@@ -114,80 +114,16 @@ public class MovieController(DbContextCinema dbContext, IMapper mapper) : Contro
     using var transaction = await _dbcontext.Database.BeginTransactionAsync();
     try
     {
-      Movie? updateMovie = await _dbcontext.Movies
-        .Include(m => m.Formats)
-        .Include(m => m.Languages)
-        .Include(m => m.Genres)
-        .FirstOrDefaultAsync(c => c.Id == id);
+      var updateMovie = await _service.GetMovieByIdAsync(id, "details");
       if (updateMovie is null)
       {
         res.UpdateValues("404", $"Movie with id: {id} not found", null, "Not found");
         return StatusCode(StatusCodes.Status404NotFound, res);
       }
       _mapper.Map(movieBody, updateMovie);
-      var existingFormats = updateMovie.Formats.ToList();
-      var newFormatIds = movieBody.FormatsIds;
-      // elimino formatos que no estan en la lista
-      var formatsToRemove = existingFormats.Where(f => !newFormatIds.Contains(f.Id)).ToList();
-      foreach (var format in formatsToRemove)
-      {
-        updateMovie.Formats.Remove(format);
-      }
-      foreach (var formatId in newFormatIds)
-      {
-        if (!existingFormats.Any(f => f.Id == formatId))
-        {
-          var formatToAdd = await _dbcontext.Formats.FindAsync(formatId);
-          if (formatToAdd != null)
-          {
-            updateMovie.Formats.Add(formatToAdd);
-          }
-        }
-      }
-      // control generos
-      var existingGenres = updateMovie.Genres.ToList();
-      var newGenreIds = movieBody.GenresIds;
-      // elimino géneros que no estan en la lista
-      var genresToRemove = existingGenres
-          .Where(g => !newGenreIds.Contains(g.Id))
-          .ToList();
-      foreach (var genre in genresToRemove)
-      {
-        updateMovie.Genres.Remove(genre);
-      }
-      // agrego los nuevos generos
-      foreach (var genreId in newGenreIds)
-      {
-        if (!existingGenres.Any(g => g.Id == genreId))
-        {
-          var genreToAdd = await _dbcontext.Genres.FindAsync(genreId);
-          if (genreToAdd != null)
-          {
-            updateMovie.Genres.Add(genreToAdd);
-          }
-        }
-      }
-      //control de lenguajes
-      var existingLanguages = updateMovie.Languages.ToList();
-      var newLanguageIds = movieBody.LanguagesIds;
-      // elimino lenguajes que no estan en la lista
-      var languagesToRemove = existingLanguages.Where(l => !newLanguageIds.Contains(l.Id)).ToList();
-      foreach (var language in languagesToRemove)
-      {
-        updateMovie.Languages.Remove(language);
-      }
-      // Agrega los nuevos lenguajes
-      foreach (var languageId in newLanguageIds)
-      {
-        if (!existingLanguages.Any(l => l.Id == languageId))
-        {
-          var languageToAdd = await _dbcontext.Languages.FindAsync(languageId);
-          if (languageToAdd != null)
-          {
-            updateMovie.Languages.Add(languageToAdd);
-          }
-        }
-      }
+      await _service.UpdateLanguages(updateMovie, movieBody.LanguagesIds);
+      await _service.UpdateFormats(updateMovie, movieBody.FormatsIds);
+      await _service.UpdateGenres(updateMovie, movieBody.GenresIds);
       _dbcontext.Movies.Update(updateMovie);
       await _dbcontext.SaveChangesAsync();
       await transaction.CommitAsync();
@@ -214,7 +150,7 @@ public class MovieController(DbContextCinema dbContext, IMapper mapper) : Contro
     using var transaction = await _dbcontext.Database.BeginTransactionAsync();
     try
     {
-      Movie? deleteMovie = await _dbcontext.Movies.FirstOrDefaultAsync(c => c.Id == id);
+      var deleteMovie = await _service.GetMovieByIdAsync(id);
       if (deleteMovie is null)
       {
         res.UpdateValues("404", $"Movie with id: {id} not found", null, "404 Not found");

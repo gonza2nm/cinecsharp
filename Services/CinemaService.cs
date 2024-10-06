@@ -9,7 +9,7 @@ public class CinemaService(DbContextCinema dbContext)
 {
   private readonly DbContextCinema _dbContext = dbContext;
 
-  public async Task<List<Cinema>> GetCinemasAsync(List<string>? opt = null)
+  public async Task<List<Cinema>> GetCinemasAsync(List<string>? opt)
   {
     return await _dbContext.Cinemas.ToListAsync();
   }
