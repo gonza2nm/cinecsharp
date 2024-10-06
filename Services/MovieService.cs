@@ -14,7 +14,7 @@ public class MovieService(DbContextCinema dbContext)
   }
   public async Task<Movie?> GetMovieByIdAsync(long id, string? opt = null)
   {
-    if (opt! is not null)
+    if (opt is not null)
     {
       if (opt.Equals("details", StringComparison.OrdinalIgnoreCase))
       {
