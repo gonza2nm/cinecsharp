@@ -3,6 +3,7 @@ using backend_cine.Dbcontext;
 using backend_cine.DTOs;
 using backend_cine.Interfaces;
 using backend_cine.Models;
+using backend_cine.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,10 +11,11 @@ namespace backend_cine.Controllers;
 
 [ApiController]
 [Route("api/users")]
-public class UserController(DbContextCinema dbContext, IMapper mapper) : ControllerBase, IRepository<UserDTO, UserRequestDTO>
+public class UserController(DbContextCinema dbContext, IMapper mapper, UserService service) : ControllerBase, IRepository<UserDTO, UserRequestDTO>
 {
   private readonly IMapper _mapper = mapper;
   private readonly DbContextCinema _dbContext = dbContext;
+  private readonly UserService _service = service;
 
   [HttpGet]
   public async Task<ActionResult<ResponseList<UserDTO>>> FindAll()
@@ -21,7 +23,7 @@ public class UserController(DbContextCinema dbContext, IMapper mapper) : Control
     var res = new ResponseList<UserDTO> { Status = "", Message = "", Data = [], Error = null };
     try
     {
-      var usersDB = await _dbContext.Users.ToListAsync();
+      var usersDB = await _service.GetUsersAsync();
       var usersDTO = _mapper.Map<List<UserDTO>>(usersDB);
       res.UpdateValues("200", "Users found succesfully", usersDTO, null);
       return StatusCode(StatusCodes.Status200OK, res);
@@ -43,7 +45,7 @@ public class UserController(DbContextCinema dbContext, IMapper mapper) : Control
     }
     try
     {
-      var userDB = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
+      var userDB = await _service.GetUserByIdAsync(id);
       if (userDB is null)
       {
         res.UpdateValues("404", $"User with id: {id} not found", null, "Not Found");
@@ -72,7 +74,7 @@ public class UserController(DbContextCinema dbContext, IMapper mapper) : Control
     using var transaction = await _dbContext.Database.BeginTransactionAsync();
     try
     {
-      var userExists = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == userBody.Email || u.Dni == userBody.Dni);
+      var userExists = await _service.GetUserByEmailOrDniAsync(userBody.Email, userBody.Dni);
       if (userExists is not null)
       {
         if (userExists.Dni == userBody.Dni)
@@ -121,8 +123,8 @@ public class UserController(DbContextCinema dbContext, IMapper mapper) : Control
     using var transaction = await _dbContext.Database.BeginTransactionAsync();
     try
     {
-      var userEmail = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == userBody.Email);
-      var userDNI = await _dbContext.Users.FirstOrDefaultAsync(u => u.Dni == userBody.Dni);
+      var userEmail = await _service.GetUserByEmailAsync(userBody.Email);
+      var userDNI = await _service.GetUserByDniAsync(userBody.Dni);
       if (userEmail is not null || userDNI is not null)
       {
         if (userEmail is not null && userEmail.Id != userBody.Id)
@@ -136,7 +138,7 @@ public class UserController(DbContextCinema dbContext, IMapper mapper) : Control
           return StatusCode(StatusCodes.Status409Conflict, res);
         }
       }
-      var userDB = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
+      var userDB = await _service.GetUserByIdAsync(id);
       if (userDB is null)
       {
         res.UpdateValues("404", $"User with id: {id} not found", null, "Not found");
@@ -173,7 +175,7 @@ public class UserController(DbContextCinema dbContext, IMapper mapper) : Control
     using var transaction = await _dbContext.Database.BeginTransactionAsync();
     try
     {
-      User? deleteUser = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == id);
+      User? deleteUser = await _service.GetUserByIdAsync(id);
       if (deleteUser is null)
       {
         res.UpdateValues("404", $"User with id: {id} not found", null, "404 Not found");
