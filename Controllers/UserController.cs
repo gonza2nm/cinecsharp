@@ -26,11 +26,6 @@ public class UserController(DbContextCinema dbContext, IMapper mapper) : Control
       res.UpdateValues("200", "Users found succesfully", usersDTO, null);
       return StatusCode(StatusCodes.Status200OK, res);
     }
-    catch (DbUpdateException dbEx)
-    {
-      res.UpdateValues("500", "Database error occurred.", [], dbEx.Message);
-      return StatusCode(StatusCodes.Status500InternalServerError, res);
-    }
     catch (Exception ex)
     {
       res.UpdateValues("500", "An error occurred while processing your request.", [], ex.Message);
@@ -57,11 +52,6 @@ public class UserController(DbContextCinema dbContext, IMapper mapper) : Control
       var userDTO = _mapper.Map<UserDTO>(userDB);
       res.UpdateValues("200", "User found succesfully", userDTO, null);
       return StatusCode(StatusCodes.Status200OK, res);
-    }
-    catch (DbUpdateException dbEx)
-    {
-      res.UpdateValues("500", "Database error occurred.", null, dbEx.Message);
-      return StatusCode(StatusCodes.Status500InternalServerError, res);
     }
     catch (Exception ex)
     {
@@ -105,12 +95,6 @@ public class UserController(DbContextCinema dbContext, IMapper mapper) : Control
       var user = _mapper.Map<UserDTO>(userDB);
       res.UpdateValues("201", "User created succesfully", user, null);
       return StatusCode(StatusCodes.Status400BadRequest, res);
-    }
-    catch (DbUpdateException dbEx)
-    {
-      await transaction.RollbackAsync();
-      res.UpdateValues("500", "Database error occurred.", null, dbEx.Message);
-      return StatusCode(StatusCodes.Status500InternalServerError, res);
     }
     catch (Exception ex)
     {
@@ -169,12 +153,6 @@ public class UserController(DbContextCinema dbContext, IMapper mapper) : Control
       res.UpdateValues("200", $"User updated successfully", null, null);
       return StatusCode(StatusCodes.Status200OK, res);
     }
-    catch (DbUpdateException dbEx)
-    {
-      await transaction.RollbackAsync();
-      res.UpdateValues("500", "Database error occurred.", null, dbEx.Message);
-      return StatusCode(StatusCodes.Status500InternalServerError, res);
-    }
     catch (Exception ex)
     {
       await transaction.RollbackAsync();
@@ -206,12 +184,6 @@ public class UserController(DbContextCinema dbContext, IMapper mapper) : Control
       await transaction.CommitAsync();
       res.UpdateValues("200", "User deleted successfully", null);
       return StatusCode(StatusCodes.Status200OK, res);
-    }
-    catch (DbUpdateException dbEx)
-    {
-      await transaction.RollbackAsync();
-      res.UpdateValues("500", "Database error occurred.", null, dbEx.Message);
-      return StatusCode(StatusCodes.Status500InternalServerError, res);
     }
     catch (Exception ex)
     {

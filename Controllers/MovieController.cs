@@ -27,11 +27,6 @@ public class MovieController(DbContextCinema dbContext, IMapper mapper) : Contro
       res.UpdateValues("200", "Found movies", movies);
       return StatusCode(StatusCodes.Status200OK, res);
     }
-    catch (DbUpdateException dbEx)
-    {
-      res.UpdateValues("500", "Database error occurred.", [], dbEx.Message);
-      return StatusCode(StatusCodes.Status500InternalServerError, res);
-    }
     catch (Exception ex)
     {
       res.UpdateValues("500", "An error occurred while processing your request.", [], ex.Message);
@@ -63,11 +58,6 @@ public class MovieController(DbContextCinema dbContext, IMapper mapper) : Contro
       res.UpdateValues("200", "Found movie", movieDTO);
       return StatusCode(StatusCodes.Status200OK, res);
     }
-    catch (DbUpdateException dbEx)
-    {
-      res.UpdateValues("500", "Database error occurred.", null, dbEx.Message);
-      return StatusCode(StatusCodes.Status500InternalServerError, res);
-    }
     catch (Exception ex)
     {
       res.UpdateValues("500", "An error occurred while processing your request.", null, ex.Message);
@@ -98,12 +88,6 @@ public class MovieController(DbContextCinema dbContext, IMapper mapper) : Contro
       var movie = _mapper.Map<MovieDTO>(movieToAdd);
       res.UpdateValues("201", "Movie successfully created", movie);
       return StatusCode(StatusCodes.Status201Created, res);
-    }
-    catch (DbUpdateException dbEx)
-    {
-      await transaction.RollbackAsync();
-      res.UpdateValues("500", "Database error occurred.", null, dbEx.Message);
-      return StatusCode(StatusCodes.Status500InternalServerError, res);
     }
     catch (Exception ex)
     {
@@ -210,12 +194,6 @@ public class MovieController(DbContextCinema dbContext, IMapper mapper) : Contro
       res.UpdateValues("200", "Movie updated successfully", null);
       return StatusCode(StatusCodes.Status200OK, res);
     }
-    catch (DbUpdateException dbEx)
-    {
-      await transaction.RollbackAsync();
-      res.UpdateValues("500", "Database error occurred.", null, dbEx.Message);
-      return StatusCode(StatusCodes.Status500InternalServerError, res);
-    }
     catch (Exception ex)
     {
       await transaction.RollbackAsync();
@@ -247,12 +225,6 @@ public class MovieController(DbContextCinema dbContext, IMapper mapper) : Contro
       await transaction.CommitAsync();
       res.UpdateValues("200", "Movie deleted successfully", null);
       return StatusCode(StatusCodes.Status200OK, res);
-    }
-    catch (DbUpdateException dbEx)
-    {
-      await transaction.RollbackAsync();
-      res.UpdateValues("500", "Database error occurred.", null, dbEx.Message);
-      return StatusCode(StatusCodes.Status500InternalServerError, res);
     }
     catch (Exception ex)
     {

@@ -5,14 +5,16 @@ using backend_cine.Dbcontext;
 using Microsoft.EntityFrameworkCore;
 using backend_cine.DTOs;
 using AutoMapper;
+using backend_cine.Services;
 
 namespace backend_cine.Controllers;
 [ApiController]
 [Route("api/cinemas")]
-public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : ControllerBase, IRepository<CinemaDTO, CinemaRequestDTO>
+public class CinemaController(DbContextCinema dbcontext, IMapper mapper, CinemaService service) : ControllerBase, IRepository<CinemaDTO, CinemaRequestDTO>
 {
 	private readonly DbContextCinema _dbcontext = dbcontext;
 	private readonly IMapper _mapper = mapper;
+	private readonly CinemaService _service = service;
 
 	//GET ALL
 	[HttpGet]
@@ -21,15 +23,10 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 		var res = new ResponseList<CinemaDTO> { Status = "", Message = "", Data = [], Error = null };
 		try
 		{
-			var cinemasDB = await _dbcontext.Cinemas.ToListAsync();
+			var cinemasDB = await _service.GetCinemasAsync();
 			var cinemas = _mapper.Map<List<CinemaDTO>>(cinemasDB);
 			res.UpdateValues("200", "Found cinemas", cinemas);
 			return StatusCode(StatusCodes.Status200OK, res);
-		}
-		catch (DbUpdateException dbEx)
-		{
-			res.UpdateValues("500", "Database error occurred.", [], dbEx.Message);
-			return StatusCode(StatusCodes.Status500InternalServerError, res);
 		}
 		catch (Exception ex)
 		{
@@ -49,7 +46,7 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 		}
 		try
 		{
-			Cinema? cinemaDB = await _dbcontext.Cinemas.FirstOrDefaultAsync(c => c.Id == id);
+			var cinemaDB = await _service.GetCinemaByIdAsync(id);
 			if (cinemaDB is null)
 			{
 				res.UpdateValues("404", $"Cinema with id: {id} not found", null, "Not Found");
@@ -58,11 +55,6 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 			var cinemaDTO = _mapper.Map<CinemaDTO>(cinemaDB);
 			res.UpdateValues("200", "Found cinema", cinemaDTO);
 			return StatusCode(StatusCodes.Status200OK, res);
-		}
-		catch (DbUpdateException dbEx)
-		{
-			res.UpdateValues("500", "Database error occurred.", null, dbEx.Message);
-			return StatusCode(StatusCodes.Status500InternalServerError, res);
 		}
 		catch (Exception ex)
 		{
@@ -84,25 +76,19 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 		using var transaction = await _dbcontext.Database.BeginTransactionAsync();
 		try
 		{
-			var cinemaToAdd = _mapper.Map<Cinema>(cinema);
-			Cinema? existingCinema = await _dbcontext.Cinemas.FirstOrDefaultAsync(c => c.Address == cinema.Address);
+			var existingCinema = await _service.GetCinemaByAddressAsync(cinema.Address);
 			if (existingCinema != null)
 			{
 				res.UpdateValues("409", "There is already a cinema in that address", null, "Conflict in the database");
 				return StatusCode(StatusCodes.Status409Conflict, res);
 			}
+			var cinemaToAdd = _mapper.Map<Cinema>(cinema);
 			await _dbcontext.Cinemas.AddAsync(cinemaToAdd);
 			await _dbcontext.SaveChangesAsync();
 			await transaction.CommitAsync();
 			var cinemaDTO = _mapper.Map<CinemaDTO>(cinemaToAdd);
 			res.UpdateValues("201", "Cinema successfully created", cinemaDTO);
 			return StatusCode(StatusCodes.Status201Created, res);
-		}
-		catch (DbUpdateException dbEx)
-		{
-			await transaction.RollbackAsync();
-			res.UpdateValues("500", "Database error occurred.", null, dbEx.Message);
-			return StatusCode(StatusCodes.Status500InternalServerError, res);
 		}
 		catch (Exception ex)
 		{
@@ -124,13 +110,13 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 		using var transaction = await _dbcontext.Database.BeginTransactionAsync();
 		try
 		{
-			Cinema? updateCinema = await _dbcontext.Cinemas.FirstOrDefaultAsync(c => c.Id == id);
+			var updateCinema = await _service.GetCinemaByIdAsync(id);
 			if (updateCinema is null)
 			{
 				res.UpdateValues("404", $"Cinema with id: {id} not found", null, "Not found");
 				return StatusCode(StatusCodes.Status404NotFound, res);
 			}
-			Cinema? addressCinema = await _dbcontext.Cinemas.FirstOrDefaultAsync(c => c.Address == cinemaBody.Address);
+			var addressCinema = await _service.GetCinemaByAddressAsync(cinemaBody.Address);
 			if (addressCinema is not null && addressCinema.Id != updateCinema.Id)
 			{
 				res.UpdateValues("409", "The address already exist in another cinema", null, "Conflict in the data");
@@ -143,12 +129,6 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 			await transaction.CommitAsync();
 			res.UpdateValues("200", "Cinema updated successfully", null);
 			return StatusCode(StatusCodes.Status200OK, res);
-		}
-		catch (DbUpdateException dbEx)
-		{
-			await transaction.RollbackAsync();
-			res.UpdateValues("500", "Database error occurred.", null, dbEx.Message);
-			return StatusCode(StatusCodes.Status500InternalServerError, res);
 		}
 		catch (Exception ex)
 		{
@@ -170,7 +150,7 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 		using var transaction = await _dbcontext.Database.BeginTransactionAsync();
 		try
 		{
-			Cinema? deleteCinema = await _dbcontext.Cinemas.FirstOrDefaultAsync(c => c.Id == id);
+			var deleteCinema = await _service.GetCinemaByIdAsync(id);
 			if (deleteCinema is null)
 			{
 				res.UpdateValues("404", $"Cinema with id: {id} not found", null, "404 Not found");
@@ -181,12 +161,6 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper) : Contr
 			await transaction.CommitAsync();
 			res.UpdateValues("200", "Cinema deleted successfully", null);
 			return StatusCode(StatusCodes.Status200OK, res);
-		}
-		catch (DbUpdateException dbEx)
-		{
-			await transaction.RollbackAsync();
-			res.UpdateValues("500", "Database error occurred.", null, dbEx.Message);
-			return StatusCode(StatusCodes.Status500InternalServerError, res);
 		}
 		catch (Exception ex)
 		{

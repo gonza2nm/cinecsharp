@@ -28,11 +28,6 @@ public class TheaterController(DbContextCinema dbcontext, IMapper mapper) : Cont
       res.UpdateValues("200", "Found Theaters", theaters, null);
       return StatusCode(StatusCodes.Status200OK, res);
     }
-    catch (DbException dbEx)
-    {
-      res.UpdateValues("500", "Database error occurred.", [], dbEx.Message);
-      return StatusCode(StatusCodes.Status500InternalServerError, res);
-    }
     catch (Exception ex)
     {
       res.UpdateValues("500", "An error occurred while processing your request.", [], ex.Message);
@@ -59,11 +54,6 @@ public class TheaterController(DbContextCinema dbcontext, IMapper mapper) : Cont
       var theater = _mapper.Map<TheaterDTO>(theaterDB);
       res.UpdateValues("200", "Found Theater", theater, null);
       return StatusCode(StatusCodes.Status200OK, res);
-    }
-    catch (DbException dbEx)
-    {
-      res.UpdateValues("500", "Database error occurred.", null, dbEx.Message);
-      return StatusCode(StatusCodes.Status500InternalServerError, res);
     }
     catch (Exception ex)
     {
@@ -132,12 +122,6 @@ public class TheaterController(DbContextCinema dbcontext, IMapper mapper) : Cont
       await transaction.CommitAsync();
       res.UpdateValues("201", "Theater successfully created", theaterDTO);
       return StatusCode(StatusCodes.Status201Created, res);
-    }
-    catch (DbUpdateException dbEx)
-    {
-      await transaction.RollbackAsync();
-      res.UpdateValues("500", "Database error occurred.", null, dbEx.Message);
-      return StatusCode(StatusCodes.Status500InternalServerError, res);
     }
     catch (Exception ex)
     {
@@ -276,12 +260,6 @@ public class TheaterController(DbContextCinema dbcontext, IMapper mapper) : Cont
         return StatusCode(StatusCodes.Status202Accepted, res);
       }
     }
-    catch (DbUpdateException dbEx)
-    {
-      await transaction.RollbackAsync();
-      res.UpdateValues("500", "Database error occurred.", null, dbEx.Message);
-      return StatusCode(StatusCodes.Status500InternalServerError, res);
-    }
     catch (Exception ex)
     {
       await transaction.RollbackAsync();
@@ -313,13 +291,6 @@ public class TheaterController(DbContextCinema dbcontext, IMapper mapper) : Cont
       await transaction.CommitAsync();
       res.UpdateValues("200", "Theater deleted successfully", null);
       return StatusCode(StatusCodes.Status200OK, res);
-    }
-    catch (DbUpdateException dbEx)
-    {
-      await transaction.RollbackAsync();
-
-      res.UpdateValues("500", "Database error occurred.", null, dbEx.Message);
-      return StatusCode(StatusCodes.Status500InternalServerError, res);
     }
     catch (Exception ex)
     {
