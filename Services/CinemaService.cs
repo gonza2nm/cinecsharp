@@ -24,4 +24,32 @@ public class CinemaService(DbContextCinema dbContext)
     return await _dbContext.Cinemas.FirstOrDefaultAsync(c => c.Address == address);
   }
 
+  public async Task AddMoviesToCinemaAsync(Cinema cinema, List<long> movieIds)
+  {
+    if (movieIds != null && movieIds.Any())
+    {
+      var movies = await _dbContext.Movies.Where(m => movieIds.Contains(m.Id)).ToListAsync();
+      cinema.Movies.AddRange(movies);
+    }
+  }
+
+  public async Task UpdateMoviesInCinemaAsync(Cinema cinema, List<long> movieIds)
+  {
+    if (movieIds != null)
+    {
+      var moviesToRemove = cinema.Movies.Where(m => !movieIds.Contains(m.Id)).ToList();
+      foreach (var movie in moviesToRemove)
+      {
+        cinema.Movies.Remove(movie);
+      }
+
+      var newMovieIds = movieIds.Except(cinema.Movies.Select(m => m.Id)).ToList();
+      if (newMovieIds.Any())
+      {
+        var newMovies = await _dbContext.Movies.Where(m => newMovieIds.Contains(m.Id)).ToListAsync();
+        cinema.Movies.AddRange(newMovies);
+      }
+    }
+  }
+
 }

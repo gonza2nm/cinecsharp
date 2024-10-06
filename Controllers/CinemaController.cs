@@ -65,10 +65,10 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper, CinemaS
 
 	//ADD
 	[HttpPost]
-	public async Task<ActionResult<ResponseOne<CinemaDTO>>> Add([FromBody] CinemaRequestDTO cinema)
+	public async Task<ActionResult<ResponseOne<CinemaDTO>>> Add([FromBody] CinemaRequestDTO cinemaBody)
 	{
 		var res = new ResponseOne<CinemaDTO> { Status = "", Message = "", Data = null, Error = null };
-		if (cinema is null || cinema.Name == null || cinema.Address == null)
+		if (cinemaBody is null || cinemaBody.Name == null || cinemaBody.Address == null)
 		{
 			res.UpdateValues("400", "Incorrect or empty data", null, "Invalid data");
 			return StatusCode(StatusCodes.Status400BadRequest, res);
@@ -76,13 +76,15 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper, CinemaS
 		using var transaction = await _dbcontext.Database.BeginTransactionAsync();
 		try
 		{
-			var existingCinema = await _service.GetCinemaByAddressAsync(cinema.Address);
+			var existingCinema = await _service.GetCinemaByAddressAsync(cinemaBody.Address);
 			if (existingCinema != null)
 			{
 				res.UpdateValues("409", "There is already a cinema in that address", null, "Conflict in the database");
 				return StatusCode(StatusCodes.Status409Conflict, res);
 			}
-			var cinemaToAdd = _mapper.Map<Cinema>(cinema);
+			var cinemaToAdd = _mapper.Map<Cinema>(cinemaBody);
+			await _service.AddMoviesToCinemaAsync(cinemaToAdd, cinemaBody.MoviesIds);
+
 			await _dbcontext.Cinemas.AddAsync(cinemaToAdd);
 			await _dbcontext.SaveChangesAsync();
 			await transaction.CommitAsync();
@@ -124,6 +126,8 @@ public class CinemaController(DbContextCinema dbcontext, IMapper mapper, CinemaS
 			}
 			updateCinema.Name = cinemaBody.Name;
 			updateCinema.Address = cinemaBody.Address;
+			await _service.UpdateMoviesInCinemaAsync(updateCinema, cinemaBody.MoviesIds);
+
 			_dbcontext.Cinemas.Update(updateCinema);
 			await _dbcontext.SaveChangesAsync();
 			await transaction.CommitAsync();

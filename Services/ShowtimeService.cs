@@ -33,7 +33,7 @@ public class ShowtimeService(DbContextCinema dbContext)
     //optiones es por si luego queremos agregarle algun filtro
     return await _dbContext.Showtimes.ToListAsync();
   }
-  public async Task<Showtime?> GetOneShowtimeByIdAsync(long id)
+  public async Task<Showtime?> GetShowtimeByIdAsync(long id)
   {
     return await _dbContext.Showtimes.FirstOrDefaultAsync(s => s.Id == id);
   }

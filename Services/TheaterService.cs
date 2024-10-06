@@ -135,10 +135,6 @@ public class TheaterService(DbContextCinema dbContext, IMapper mapper)
         //solo se cambia el nombre  y finaliza
         _dbContext.Update(theaterDB);
         await _dbContext.SaveChangesAsync();
-        await transaction.CommitAsync();
-        theaterDTO = _mapper.Map<TheaterDTO>(theaterDB);
-        res.UpdateValues("200", "Theater Updated Succesfully", theaterDTO, null);
-        return res;
       }
       else
       {
@@ -214,11 +210,12 @@ public class TheaterService(DbContextCinema dbContext, IMapper mapper)
           }
         }
         _dbContext.Entry(theaterDB).Collection(t => t.Rows).Load();
-        await transaction.CommitAsync();
-        theaterDTO = _mapper.Map<TheaterDTO>(theaterDB);
-        res.UpdateValues("200", "Theater Updated Succesfully", theaterDTO, null);
-        return res;
+
       }
+      await transaction.CommitAsync();
+      theaterDTO = _mapper.Map<TheaterDTO>(theaterDB);
+      res.UpdateValues("200", "Theater Updated Succesfully", theaterDTO, null);
+      return res;
     }
     catch (Exception ex)
     {

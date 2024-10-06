@@ -1,4 +1,3 @@
-using System.Data.Common;
 using AutoMapper;
 using backend_cine.Dbcontext;
 using backend_cine.DTOs;
@@ -6,12 +5,13 @@ using backend_cine.Interfaces;
 using backend_cine.Models;
 using backend_cine.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace backend_cine.Controllers;
 
 [ApiController]
 [Route("api/showtimes")]
-public class ShowtimesController(DbContextCinema dbContext, IMapper mapper, ShowtimeService showtimeService) : ControllerBase, IRepository<ShowtimeDTO, ShowtimeRequestDTO>
+public class ShowtimesController(DbContextCinema dbContext, IMapper mapper, ShowtimeService showtimeService) : ControllerBase
 {
   private readonly IMapper _mapper = mapper;
   private readonly DbContextCinema _dbContext = dbContext;
@@ -36,9 +36,31 @@ public class ShowtimesController(DbContextCinema dbContext, IMapper mapper, Show
   }
 
   [HttpGet("{id}")]
-  public Task<ActionResult<ResponseOne<ShowtimeDTO>>> FindOne(long id)
+  public async Task<ActionResult<ResponseOne<ShowtimeDTO>>> FindOne(long id)
   {
-    throw new NotImplementedException();
+    var res = new ResponseOne<ShowtimeDTO> { Status = "", Message = "", Data = null, Error = null };
+    if (id <= 0)
+    {
+      res.UpdateValues("400", "Invalid Showtime ID", null, "Bad Request");
+      return StatusCode(StatusCodes.Status400BadRequest, res);
+    }
+    try
+    {
+      var showtimeDB = await _service.GetShowtimeByIdAsync(id);
+      if (showtimeDB is null)
+      {
+        res.UpdateValues("404", $"Showtime with id: {id} not found", null, "Not Found");
+        return StatusCode(StatusCodes.Status404NotFound, res);
+      }
+      var showtimeDTO = _mapper.Map<ShowtimeDTO>(showtimeDB);
+      res.UpdateValues("200", "Found showtime", showtimeDTO);
+      return StatusCode(StatusCodes.Status200OK, res);
+    }
+    catch (Exception ex)
+    {
+      res.UpdateValues("500", "An error occurred while processing your request.", null, ex.Message);
+      return StatusCode(StatusCodes.Status500InternalServerError, res);
+    }
   }
 
   [HttpPost]
@@ -64,7 +86,6 @@ public class ShowtimesController(DbContextCinema dbContext, IMapper mapper, Show
       var cinemaContainMovie = await _service.CinemaContainMovieAsync(theater.Id, movie.Id);
       if (!cinemaContainMovie)
       {
-        await transaction.RollbackAsync();
         res.UpdateValues("404", "The cinema does not have that film on the billboard", null, "Error");
         return StatusCode(StatusCodes.Status404NotFound, res);
       }
@@ -83,7 +104,6 @@ public class ShowtimesController(DbContextCinema dbContext, IMapper mapper, Show
         if (IsOverlapping)
         {
           res.UpdateValues("409", $"There is a showtime between {showtimeBody.StartDate} and {EndDate}", null, "Conflict");
-          await transaction.RollbackAsync();
           return StatusCode(StatusCodes.Status409Conflict, res);
         }
         else
@@ -111,6 +131,7 @@ public class ShowtimesController(DbContextCinema dbContext, IMapper mapper, Show
       }
       else
       {
+        await transaction.RollbackAsync();
         res.UpdateValues("400", "the format or language of the feature does not exist in the movie", null, "Bad Request");
         return StatusCode(StatusCodes.Status400BadRequest, res);
       }
@@ -123,15 +144,36 @@ public class ShowtimesController(DbContextCinema dbContext, IMapper mapper, Show
     }
   }
 
-  [HttpPut("{id}")]
-  public Task<ActionResult<ResponseOne<ShowtimeDTO>>> Update(long id, ShowtimeRequestDTO showtimeBody)
-  {
-    throw new NotImplementedException();
-  }
-
   [HttpDelete("{id}")]
-  public Task<ActionResult<ResponseOne<ShowtimeDTO>>> Delete(long id)
+  public async Task<ActionResult<ResponseOne<ShowtimeDTO>>> Delete(long id)
   {
-    throw new NotImplementedException();
+    var res = new ResponseOne<ShowtimeDTO> { Status = "", Message = "", Data = null, Error = null };
+    if (id <= 0)
+    {
+      res.UpdateValues("400", "Invalid Showtime ID", null, "Bad Request");
+      return StatusCode(StatusCodes.Status400BadRequest, res);
+    }
+    using var transaction = await _dbContext.Database.BeginTransactionAsync();
+    try
+    {
+      var deleteShowtime = await _service.GetShowtimeByIdAsync(id);
+      if (deleteShowtime is null)
+      {
+        res.UpdateValues("404", $"Showtime with id: {id} not found", null, "404 Not found");
+        return StatusCode(StatusCodes.Status404NotFound, res);
+      }
+      _dbContext.Showtimes.Remove(deleteShowtime);
+      await _dbContext.SaveChangesAsync();
+      await transaction.CommitAsync();
+      res.UpdateValues("200", "Showtime deleted successfully", null);
+      return StatusCode(StatusCodes.Status200OK, res);
+
+    }
+    catch (Exception ex)
+    {
+      await transaction.RollbackAsync();
+      res.UpdateValues("500", "An error occurred while processing your request.", null, ex.Message);
+      return StatusCode(StatusCodes.Status500InternalServerError, res);
+    }
   }
 }
