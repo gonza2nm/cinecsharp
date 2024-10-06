@@ -6,7 +6,6 @@ using backend_cine.Interfaces;
 using backend_cine.Models;
 using backend_cine.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace backend_cine.Controllers;
 
